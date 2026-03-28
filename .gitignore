@@ -1,0 +1,23 @@
+# Build artifacts
+build/
+install/
+log/
+*.pyc
+__pycache__/
+
+# PX4 build output
+PX4-Autopilot/build/
+
+# ROS 2 bags
+*.bag
+*.db3
+
+# System files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/settings.json
+.idea/
