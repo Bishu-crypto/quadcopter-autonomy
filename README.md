@@ -50,6 +50,8 @@
 | Date | Phase | Milestone |
 |------|-------|-----------|
 | Mar 29, 2026 | — | Repository initialized, project structure created |
+| Mar 29, 2026 | Phase 0 | PX4 SITL built from source, Gazebo Harmonic launched |
+| Mar 29, 2026 | Phase 0 | QGroundControl connected, first autonomous mission flown |
 
 ---
 

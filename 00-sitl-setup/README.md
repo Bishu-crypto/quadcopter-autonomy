@@ -63,3 +63,16 @@ INFO  [uxrce_dds_client] init UDP agent IP:127.0.0.1, port:8888
 2. Install and run uXRCE-DDS micro-agent
 3. Write ROS 2 telemetry subscriber node
 4. Write ROS 2 offboard takeoff/hover/land node
+
+## Milestone 2 — First Autonomous Mission ✅
+
+### Mission Profile
+- Waypoints: 7
+- Altitude: 50ft
+- Mode: AUTO.MISSION
+- Result: Full waypoint sequence completed, RTL successful
+
+### Screenshots
+![Gazebo First Launch](./screenshots/01-gazebo-first-launch.png)
+![First Autonomous Mission](./screenshots/02-first-autonomous-mission-qgc.png)
+![Mission Complete](./screenshots/03-mission-complete-qgc.png)
