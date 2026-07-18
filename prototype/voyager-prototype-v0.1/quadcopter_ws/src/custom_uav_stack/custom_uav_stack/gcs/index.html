@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroStack Ground Control Station</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Three.js for 3D Quadcopter rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-section">
+                <span class="logo-icon">▲</span>
+                <h1>AEROSTACK <span class="accent-text">GCS</span></h1>
+            </div>
+            <div class="system-status">
+                <div class="status-badge" id="conn-status">
+                    <span class="dot red"></span>
+                    <span class="label">DISCONNECTED</span>
+                </div>
+                <div class="status-badge" id="arm-status">
+                    <span class="dot red"></span>
+                    <span class="label">DISARMED</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="app-grid">
+            <!-- Left Control Panel -->
+            <section class="panel-card glass control-panel">
+                <h2>FLIGHT COMMANDS</h2>
+                
+                <!-- Arming Switch -->
+                <div class="control-group arm-group">
+                    <button id="btn-arm" class="btn-danger">ARM VEHICLE</button>
+                </div>
+
+                <!-- Mode & Waypoints -->
+                <div class="control-group">
+                    <h3>Waypoint Control</h3>
+                    <div class="waypoint-inputs">
+                        <div class="input-field">
+                            <label>Target X (m)</label>
+                            <input type="number" id="wp-x" value="0.0" step="0.5">
+                        </div>
+                        <div class="input-field">
+                            <label>Target Y (m)</label>
+                            <input type="number" id="wp-y" value="0.0" step="0.5">
+                        </div>
+                        <div class="input-field">
+                            <label>Target Z (m)</label>
+                            <input type="number" id="wp-z" value="2.0" step="0.5">
+                        </div>
+                        <div class="input-field">
+                            <label>Yaw (deg)</label>
+                            <input type="number" id="wp-yaw" value="0.0" step="10">
+                        </div>
+                    </div>
+                    <div class="button-row">
+                        <button id="btn-send-wp" class="btn-primary">Go to Setpoint</button>
+                        <button id="btn-rth" class="btn-secondary">Return Home</button>
+                    </div>
+                </div>
+
+                <!-- Real-time PID Tuner -->
+                <div class="control-group">
+                    <h3>PID Tuning Panel</h3>
+                    <div class="pid-tabs">
+                        <button class="tab-btn active" onclick="switchPidTab('pos')">Position</button>
+                        <button class="tab-btn" onclick="switchPidTab('att')">Attitude</button>
+                        <button class="tab-btn" onclick="switchPidTab('rate')">Rate</button>
+                    </div>
+
+                    <!-- Position Tuning -->
+                    <div class="tab-content" id="pid-pos">
+                        <div class="slider-field">
+                            <div class="slider-header"><span>XY Position Kp</span><span id="val-kp-xy">1.50</span></div>
+                            <input type="range" id="kp-xy" min="0.1" max="5.0" step="0.1" value="1.5">
+                        </div>
+                        <div class="slider-field">
+                            <div class="slider-header"><span>XY Position Kd</span><span id="val-kd-xy">1.20</span></div>
+                            <input type="range" id="kd-xy" min="0.1" max="5.0" step="0.1" value="1.2">
+                        </div>
+                        <div class="slider-field">
+                            <div class="slider-header"><span>Z Position Kp</span><span id="val-kp-z">3.00</span></div>
+                            <input type="range" id="kp-z" min="0.5" max="8.0" step="0.1" value="3.0">
+                        </div>
+                        <div class="slider-field">
+                            <div class="slider-header"><span>Z Position Kd</span><span id="val-kd-z">2.20</span></div>
+                            <input type="range" id="kd-z" min="0.5" max="8.0" step="0.1" value="2.2">
+                        </div>
+                    </div>
+
+                    <!-- Attitude Tuning -->
+                    <div class="tab-content hidden" id="pid-att">
+                        <div class="slider-field">
+                            <div class="slider-header"><span>Roll/Pitch Angle Kp</span><span id="val-kp-att-rp">6.50</span></div>
+                            <input type="range" id="kp-att-rp" min="1.0" max="15.0" step="0.5" value="6.5">
+                        </div>
+                        <div class="slider-field">
+                            <div class="slider-header"><span>Yaw Angle Kp</span><span id="val-kp-att-y">4.00</span></div>
+                            <input type="range" id="kp-att-y" min="1.0" max="10.0" step="0.5" value="4.0">
+                        </div>
+                    </div>
+
+                    <!-- Rate Tuning -->
+                    <div class="tab-content hidden" id="pid-rate">
+                        <div class="slider-field">
+                            <div class="slider-header"><span>Roll/Pitch Rate Kp</span><span id="val-kp-rate-rp">0.15</span></div>
+                            <input type="range" id="kp-rate-rp" min="0.01" max="1.0" step="0.01" value="0.15">
+                        </div>
+                        <div class="slider-field">
+                            <div class="slider-header"><span>Roll/Pitch Rate Kd</span><span id="val-kd-rate-rp">0.015</span></div>
+                            <input type="range" id="kd-rate-rp" min="0.0" max="0.1" step="0.005" value="0.015">
+                        </div>
+                        <div class="slider-field">
+                            <div class="slider-header"><span>Roll/Pitch Rate Ki</span><span id="val-ki-rate-rp">0.08</span></div>
+                            <input type="range" id="ki-rate-rp" min="0.0" max="0.5" step="0.01" value="0.08">
+                        </div>
+                        <div class="slider-field">
+                            <div class="slider-header"><span>Yaw Rate Kp</span><span id="val-kp-rate-y">0.25</span></div>
+                            <input type="range" id="kp-rate-y" min="0.05" max="1.5" step="0.05" value="0.25">
+                        </div>
+                    </div>
+
+                    <button id="btn-apply-pid" class="btn-primary full-width">Apply Gains</button>
+                </div>
+
+                <!-- Disturbance Injector -->
+                <div class="control-group">
+                    <h3>Environmental Disturbances</h3>
+                    <div class="slider-field">
+                        <div class="slider-header"><span>Wind Force X (N)</span><span id="val-wind-x">0.0</span></div>
+                        <input type="range" id="wind-x" min="-10.0" max="10.0" step="0.5" value="0">
+                    </div>
+                    <div class="slider-field">
+                        <div class="slider-header"><span>Wind Force Y (N)</span><span id="val-wind-y">0.0</span></div>
+                        <input type="range" id="wind-y" min="-10.0" max="10.0" step="0.5" value="0">
+                    </div>
+                    <div class="button-row">
+                        <button id="btn-apply-wind" class="btn-secondary">Apply Wind</button>
+                        <button id="btn-clear-wind" class="btn-secondary">Clear Wind</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Center Visualizer -->
+            <section class="center-workspace">
+                <div class="panel-card glass visualizer-card">
+                    <div class="visualizer-header">
+                        <h2>3D FLIGHT TRACKER</h2>
+                        <button id="btn-reset-sim" class="btn-danger-small">RESET POSITION</button>
+                    </div>
+                    <!-- Three.js Canvas container -->
+                    <div id="canvas-3d-container"></div>
+                </div>
+            </section>
+
+            <!-- Right Telemetry Panel -->
+            <section class="panel-card glass telemetry-panel">
+                <h2>FLIGHT TELEMETRY</h2>
+
+                <!-- Numerical Telemetry Readings -->
+                <div class="telem-row">
+                    <div class="telem-block">
+                        <div class="telem-val" id="val-x">0.00 m</div>
+                        <div class="telem-lbl">POSITION X</div>
+                    </div>
+                    <div class="telem-block">
+                        <div class="telem-val" id="val-y">0.00 m</div>
+                        <div class="telem-lbl">POSITION Y</div>
+                    </div>
+                    <div class="telem-block">
+                        <div class="telem-val" id="val-z">0.00 m</div>
+                        <div class="telem-lbl">ALTITUDE Z</div>
+                    </div>
+                </div>
+
+                <div class="telem-row">
+                    <div class="telem-block">
+                        <div class="telem-val" id="val-roll">0.0°</div>
+                        <div class="telem-lbl">ROLL</div>
+                    </div>
+                    <div class="telem-block">
+                        <div class="telem-val" id="val-pitch">0.0°</div>
+                        <div class="telem-lbl">PITCH</div>
+                    </div>
+                    <div class="telem-block">
+                        <div class="telem-val" id="val-yaw">0.0°</div>
+                        <div class="telem-lbl">YAW</div>
+                    </div>
+                </div>
+
+                <!-- Custom High-performance Real-time Charts -->
+                <div class="chart-container">
+                    <h3>Z Altitude vs Setpoint</h3>
+                    <canvas id="chart-z" width="320" height="110"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>X-Y Trajectory Error</h3>
+                    <canvas id="chart-xy" width="320" height="110"></canvas>
+                </div>
+
+                <!-- Motor Speed Indicators -->
+                <div class="motor-container">
+                    <h3>Motor Speed Outputs (rad/s)</h3>
+                    <div class="motor-bars">
+                        <div class="motor-bar-wrapper">
+                            <span class="motor-label">M1 (FR)</span>
+                            <div class="motor-track">
+                                <div class="motor-fill" id="fill-m1" style="height: 0%"></div>
+                            </div>
+                            <span class="motor-speed-text" id="txt-m1">0</span>
+                        </div>
+                        <div class="motor-bar-wrapper">
+                            <span class="motor-label">M2 (RL)</span>
+                            <div class="motor-track">
+                                <div class="motor-fill" id="fill-m2" style="height: 0%"></div>
+                            </div>
+                            <span class="motor-speed-text" id="txt-m2">0</span>
+                        </div>
+                        <div class="motor-bar-wrapper">
+                            <span class="motor-label">M3 (FL)</span>
+                            <div class="motor-track">
+                                <div class="motor-fill" id="fill-m3" style="height: 0%"></div>
+                            </div>
+                            <span class="motor-speed-text" id="txt-m3">0</span>
+                        </div>
+                        <div class="motor-bar-wrapper">
+                            <span class="motor-label">M4 (RR)</span>
+                            <div class="motor-track">
+                                <div class="motor-fill" id="fill-m4" style="height: 0%"></div>
+                            </div>
+                            <span class="motor-speed-text" id="txt-m4">0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

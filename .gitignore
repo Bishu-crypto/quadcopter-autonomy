@@ -1,23 +1,38 @@
-# Build artifacts
+# ROS 2 & Colcon Build Output
 build/
 install/
 log/
+**/build/
+**/install/
+**/log/
+
+# Python caching
 *.pyc
 __pycache__/
+.pytest_cache/
+
+# Virtual Environments
+.venv/
+venv/
+env/
+
+# C++ / CMake outputs
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
 
 # PX4 build output
 PX4-Autopilot/build/
 
-# ROS 2 bags
+# ROS 2 bag files
 *.bag
 *.db3
 
-# System files
+# System & Editor configurations
 .DS_Store
 Thumbs.db
 *.swp
 *.swo
-
-# IDE
-.vscode/settings.json
+.vscode/
 .idea/

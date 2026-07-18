@@ -1,85 +1,54 @@
-# Quadcopter Autonomy Project
+# Voyager — A Modular Autonomous UAV Ecosystem
 
 **Author:** Vaibhav | IIT Madras — BS Electronic Systems (2023–2027)  
-**Stack:** PX4 v1.14 · ROS 2 Humble · Gazebo Harmonic · Pixhawk 1 (rev 2.4.8)  
 **Repo:** [github.com/Bishu-crypto/quadcopter-autonomy](https://github.com/Bishu-crypto/quadcopter-autonomy)
 
-> From simulation to autonomous real-world flight — fully documented.
+> Re-architecting the entire UAV stack from scratch to understand, model, and build every layer of an autonomous aerial vehicle system — from physics simulation to embedded flight controller firmware.
 
 ---
 
-## Project Phases
+## 🚀 Getting Started (Onboarding)
 
-| Phase | Title | Status |
-|-------|-------|--------|
-| [00 — SITL Setup](./00-sitl-setup/) | PX4 SITL + Gazebo + ROS 2 Bridge | 🔄 In Progress |
-| [01 — Build Log](./01-build-log/) | Hardware Assembly + Calibration | ⏳ Pending |
-| [02 — Flight Logs](./02-flight-logs/) | Manual Flight Validation | ⏳ Pending |
-| [03 — Offboard Control](./03-offboard-control/) | ROS 2 Autonomous Control | ⏳ Pending |
-| [04 — Advanced](./04-advanced/) | Precision Landing / Avoidance | ⏳ Pending |
+> [!IMPORTANT]
+> If you are a new developer or starting a new programming agent session, you **MUST** read and understand our **[ENGINEERING_PRINCIPLES.md](./docs/ENGINEERING_PRINCIPLES.md)** first. It governs our system philosophy, modular boundaries, simulation-first workflow, and coding guidelines.
 
 ---
 
-## Hardware Stack
+## 🧭 Repository Structure
 
-| Component | Specification |
-|-----------|---------------|
-| Flight Controller | Pixhawk 1 rev 2.4.8 (STM32F405RGT6) |
-| Motors | BLDC, quadcopter spec |
-| ESCs | PWM compatible |
-| GPS | u-blox compatible module |
-| RC System | Standard 6+ channel TX/RX |
-| Battery | LiPo |
-| Companion (Phase 4) | ESP32 — MAVLink WiFi bridge |
-
-## Software Stack
-
-| Software | Version | Purpose |
-|----------|---------|---------|
-| Ubuntu | 22.04 LTS | Host OS |
-| PX4 Autopilot | v1.14 | Flight firmware + SITL |
-| ROS 2 | Humble | Offboard control framework |
-| Gazebo | Harmonic 8.11 | 3D physics simulation |
-| QGroundControl | Latest | Ground station + log analysis |
-| uXRCE-DDS | micro-ROS | PX4 ↔ ROS 2 bridge |
-
----
-
-## Progress Log
-
-| Date | Phase | Milestone |
-|------|-------|-----------|
-| Mar 29, 2026 | — | Repository initialized, project structure created |
-| Mar 29, 2026 | Phase 0 | PX4 SITL built from source, Gazebo Harmonic launched |
-| Mar 29, 2026 | Phase 0 | QGroundControl connected, first autonomous mission flown |
-
----
-
-## Repository Structure
 ```
-quadcopter-autonomy/
-├── 00-sitl-setup/          # PX4 SITL, Gazebo, uXRCE-DDS, ROS 2 bridge
-│   ├── launch/             # ROS 2 launch files
-│   ├── configs/            # PX4 params, world files
-│   └── README.md
-├── 01-build-log/           # Hardware assembly documentation
-│   ├── wiring/             # Wiring diagrams
-│   ├── photos/             # Build progress photos
-│   ├── calibration/        # QGC calibration screenshots
-│   └── README.md
-├── 02-flight-logs/         # Flight data
-│   ├── raw/                # .ulg log files
-│   ├── analysis/           # Flight Review exports
-│   └── README.md
-├── 03-offboard-control/    # ROS 2 offboard control package
-│   ├── src/                # Node source code
-│   ├── launch/             # Launch files
-│   ├── config/             # Parameters
-│   └── README.md
-├── 04-advanced/            # Advanced autonomy feature
-│   ├── src/
-│   └── README.md
-└── docs/                   # Reports, architecture diagrams
+quadcopter-autonomy/ (Voyager Root)
+├── README.md               # Main repository directory index
+├── .gitignore              # Repository file exclusion rules
+├── docs/                   # General documentation
+│   ├── Vision.md           # Why Voyager exists & core philosophies
+│   ├── Architecture.md     # Module boundaries, data flow, & topologies
+│   ├── Roadmap.md          # 1-2 Year Milestones
+│   ├── CodingStandards.md  # Naming, formatting, and safety-critical rules
+│   ├── ENGINEERING_PRINCIPLES.md # Core master prompt and onboarding philosophy
+│   ├── CONTRIBUTING.md     # Pull request guidelines & contribution flow
+│   ├── CHANGELOG.md        # Record of project version releases
+│   ├── ADR/                # Architecture Decision Records directory
+│   └── Theory/             # Mathematical & physical foundations of Voyager
+│       ├── FlightDynamics.md  # 6-DOF kinematics and dynamics
+│       ├── Control.md         # Cascaded PID control & mixer math
+│       ├── Estimation.md      # Sensor modeling & complementary/EKF filters
+│       ├── Communications.md  # Telemetry packet framing & serialization
+│       ├── Navigation.md      # Path planning & geofencing guidelines
+│       ├── Aerodynamics.md    # Rotor aerodynamics & wind modeling
+│       └── Sensors.md         # Detailed sensor physics
+├── modules/                # Production software modules
+│   └── voyager-sim/        # High-fidelity 6-DOF physics and environment simulator
+├── prototype/              # Historical prototypes
+│   └── voyager-prototype-v0.1/ # Voyager Prototype v0.1
+│       └── quadcopter_ws/  # Original ROS 2 simulation and GCS bridge workspace
+├── experiments/            # Legacy flight control and simulation experiments
+├── logs/                   # Raw and analyzed flight telemetry data
+├── specs/                  # Interface specifications and protocol schemas
+├── journal/                # Daily engineering logs and developer design diaries
+├── scripts/                # Build and test automation scripts
+├── tools/                  # Log parsers and sensor calibration helpers
+└── assets/                 # Images, reports, and CAD model files
 ```
 
 ---
