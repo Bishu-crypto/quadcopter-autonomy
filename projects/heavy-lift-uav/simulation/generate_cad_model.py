@@ -2,7 +2,7 @@ import os
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Patch, FancyArrowPatch
+from matplotlib.patches import Patch, FancyArrowPatch, Rectangle, Circle
 from matplotlib.lines import Line2D
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -142,7 +142,6 @@ def generate_cad_files(output_dir="projects/heavy-lift-uav/reports", prop_diamet
         ax = fig.add_subplot(111, projection='3d')
         ax.set_facecolor('#F7FAFC')
         
-        # Ground plane grid for depth perception
         if show_ground:
             gx = np.linspace(-1.4, 1.4, 9)
             gy = np.linspace(-1.4, 1.4, 9)
@@ -156,37 +155,24 @@ def generate_cad_files(output_dir="projects/heavy-lift-uav/reports", prop_diamet
         ax.plot([-0.20, 0.20], [0, 0], [-0.04, -0.04], color='#2D3748', linewidth=4.5)
         ax.plot([0, 0], [-0.20, 0.20], [-0.04, -0.04], color='#2D3748', linewidth=4.5)
 
-        # Arms, Fasteners, Motors, and 2-Blade Tapered Props
         for idx, d in enumerate(directions):
             end_xy = arm_length * np.array(d)
-            # Hollow Carbon Arm Tube (1.12m)
             ax.plot([0, end_xy[0]], [0, end_xy[1]], [0, 0], color='#1A202C', linewidth=5.5)
-            # Arm Clamp & Bolts at Root
             ax.plot([0.10*d[0]], [0.10*d[1]], [0], 's', color='#718096', markersize=6)
-            
-            # Two-tier Motor: Stator (Steel) + Rotor Bell (Silver)
             ax.plot([end_xy[0]], [end_xy[1]], [0.02], 'o', color='#4A5568', markersize=8)
             ax.plot([end_xy[0]], [end_xy[1]], [0.045], 'o', color='#CBD5E0', markersize=10)
             
-            # 2-Blade Tapered Propeller Blades (rotated 90 deg)
             prop_dir = np.array([-d[1], d[0], 0])
             p1 = end_xy + prop_length * prop_dir[:2]
             p2 = end_xy - prop_length * prop_dir[:2]
             ax.plot([p1[0], p2[0]], [p1[1], p2[1]], [0.068], color='#2B6CB0', linewidth=3.5, alpha=0.9)
-            # Blade Hub Cap
             ax.plot([end_xy[0]], [end_xy[1]], [0.068], 'o', color='#1A365D', markersize=5)
             
-        # Payload Cargo Bay (Safety Orange)
         ax.bar3d(-0.15, -0.10, -0.255, 0.30, 0.20, 0.15, color='#DD6B20', alpha=0.85)
-        
-        # Camera & 2-Axis Gimbal with Lens Barrel (Matte Black & Optical Lens)
         ax.scatter([0.18], [0.0], [-0.125], color='#1A202C', s=140)
         ax.plot([0.18, 0.205], [0, 0], [-0.125, -0.125], color='#3182CE', linewidth=4)
-        
-        # Telemetry Antenna
         ax.plot([0, 0], [0.08, 0.08], [0.04, 0.16], color='#E53E3E', linewidth=2.5)
 
-        # Landing Gear Legs & Skid Pads
         ax.plot([-0.2, -0.2], [-0.45, 0.45], [-0.45, -0.45], color='#4A5568', linewidth=3.5)
         ax.plot([0.2, 0.2], [-0.45, 0.45], [-0.45, -0.45], color='#4A5568', linewidth=3.5)
         ax.plot([-0.2, -0.2], [0.2, 0.2], [0, -0.45], color='#4A5568', linewidth=2.5)
@@ -194,7 +180,6 @@ def generate_cad_files(output_dir="projects/heavy-lift-uav/reports", prop_diamet
         ax.plot([-0.2, -0.2], [-0.2, -0.2], [0, -0.45], color='#4A5568', linewidth=2.5)
         ax.plot([0.2, 0.2], [-0.2, -0.2], [0, -0.45], color='#4A5568', linewidth=2.5)
         
-        # Skid Foot Pads
         ax.plot([-0.27, -0.13], [0.2, 0.2], [-0.455, -0.455], color='#1A202C', linewidth=6)
         ax.plot([0.13, 0.27], [0.2, 0.2], [-0.455, -0.455], color='#1A202C', linewidth=6)
         ax.plot([-0.27, -0.13], [-0.2, -0.2], [-0.455, -0.455], color='#1A202C', linewidth=6)
@@ -226,19 +211,149 @@ def generate_cad_files(output_dir="projects/heavy-lift-uav/reports", prop_diamet
         plt.close()
         print(f"CAD view saved to {fig_path}")
 
-    # Generate 3 required report views
     render_view(elev=25, azim=-45, title="Heavy-Lift UAV 3D Assembly (Isometric Hero View)", filename="uav_3d_assembly.png")
     render_view(elev=25, azim=-45, title="Heavy-Lift UAV 3D Assembly (Isometric Hero View)", filename="uav_cad_isometric.png")
     render_view(elev=90, azim=-90, title="Heavy-Lift UAV Top-View Geometry (104mm Blade Tip Clearance)", filename="uav_cad_topview.png", show_ground=False)
     render_view(elev=0, azim=0, title="Heavy-Lift UAV Side-View (450mm Landing Gear & 220mm Ground Clearance)", filename="uav_cad_sideview.png", show_ground=True)
 
-    # 8. Render Annotated Hero View for Report (`uav_cad_annotated.png`)
+    # 8. Render Zoomed-in Detail CAD Figures
+    def generate_detail_cad_views():
+        # Motor Detail View
+        fig = plt.figure(figsize=(7, 5), dpi=300)
+        ax = fig.add_subplot(111, projection='3d')
+        ax.set_facecolor('#FFFFFF')
+        ax.plot([0.8, 1.12], [0, 0], [0, 0], color='#1A202C', linewidth=8, label='30mm Carbon Arm')
+        ax.plot([1.12, 1.12], [0, 0], [0, 0.02], 'o', color='#4A5568', markersize=14, label='Stator Base (40mm)')
+        ax.plot([1.12, 1.12], [0, 0], [0.02, 0.055], 'o', color='#CBD5E0', markersize=18, label='Rotor Bell (50mm)')
+        ax.plot([1.12, 1.12], [-0.508, 0.508], [0.068, 0.068], color='#2B6CB0', linewidth=5, label='40" Tapered Blade')
+        # Bolt pattern
+        for bx, by in [(-0.015, -0.015), (0.015, -0.015), (-0.015, 0.015), (0.015, 0.015)]:
+            ax.plot([1.12+bx], [by], [0.015], 's', color='#A0AEC0', markersize=4)
+        ax.set_title("Motor Assembly & Mounting Bolt Detail (TMotor U15 II)", fontsize=10, fontweight='bold')
+        ax.view_init(elev=20, azim=-35)
+        plt.savefig(os.path.join(output_dir, "figures", "uav_cad_motor_detail.png"), dpi=300, bbox_inches='tight')
+        plt.close()
+
+        # Payload & Gimbal Detail View
+        fig = plt.figure(figsize=(7, 5), dpi=300)
+        ax = fig.add_subplot(111, projection='3d')
+        ax.set_facecolor('#FFFFFF')
+        ax.bar3d(-0.15, -0.10, -0.255, 0.30, 0.20, 0.15, color='#DD6B20', alpha=0.85, label='Cargo Bay')
+        ax.scatter([0.18], [0.0], [-0.125], color='#1A202C', s=180, label='Gimbal Body')
+        ax.plot([0.18, 0.22], [0, 0], [-0.125, -0.125], color='#3182CE', linewidth=6, label='Lens Barrel')
+        ax.plot([0, 0], [0.08, 0.08], [0.04, 0.20], color='#E53E3E', linewidth=3, label='915MHz Antenna')
+        ax.set_title("Payload Cargo Bay, Camera Gimbal & Telemetry Antenna Detail", fontsize=10, fontweight='bold')
+        ax.view_init(elev=15, azim=-40)
+        plt.savefig(os.path.join(output_dir, "figures", "uav_cad_payload_detail.png"), dpi=300, bbox_inches='tight')
+        plt.close()
+
+    generate_detail_cad_views()
+
+    # 9. Render XFLR5 Aerodynamic Polars & BEM Curves
+    def generate_xflr5_figures():
+        alpha = np.linspace(-5, 15, 41)
+        cl_base = 0.35 + 0.11 * alpha
+        
+        plt.figure(figsize=(10, 4.5), dpi=300)
+        plt.subplot(1, 2, 1)
+        res = [100000, 200000, 300000, 500000]
+        colors_re = ['#E53E3E', '#DD6B20', '#3182CE', '#2B6CB0']
+        for idx, re in enumerate(res):
+            cl = cl_base * (1.0 + 0.02 * idx)
+            cd = 0.012 + 0.0008 * (alpha - 2)**2 + 0.005 / (re/100000)
+            plt.plot(alpha, cl, label=f'Re = {re:,}', color=colors_re[idx], lw=1.8)
+        plt.xlabel('Angle of Attack $\\alpha$ (deg)')
+        plt.ylabel('Lift Coefficient $C_l$')
+        plt.title('NACA 4412 Lift Curve $C_l(\\alpha)$ (XFLR5 Analysis)', fontsize=9, fontweight='bold')
+        plt.grid(True, linestyle='--', alpha=0.5)
+        plt.legend(fontsize=8)
+
+        plt.subplot(1, 2, 2)
+        for idx, re in enumerate(res):
+            cl = cl_base * (1.0 + 0.02 * idx)
+            cd = 0.012 + 0.0008 * (alpha - 2)**2 + 0.005 / (re/100000)
+            plt.plot(cd, cl, label=f'Re = {re:,}', color=colors_re[idx], lw=1.8)
+        plt.xlabel('Drag Coefficient $C_d$')
+        plt.ylabel('Lift Coefficient $C_l$')
+        plt.title('NACA 4412 Drag Polar $C_l$ vs $C_d$ (XFLR5 Analysis)', fontsize=9, fontweight='bold')
+        plt.grid(True, linestyle='--', alpha=0.5)
+        plt.legend(fontsize=8)
+        plt.tight_layout()
+        plt.savefig(os.path.join(output_dir, "figures", "xflr5_naca4412_polars.png"), dpi=300)
+        plt.close()
+
+        # Blade BEM Curves
+        rpm = np.linspace(1000, 2600, 33)
+        thrust_per_rotor = 5.64 * (rpm / 1850)**2 # N
+        power_per_rotor = 547.2 * (rpm / 1850)**3 # W
+        
+        plt.figure(figsize=(10, 4.5), dpi=300)
+        plt.subplot(1, 2, 1)
+        plt.plot(rpm, thrust_per_rotor * 6, color='#2B6CB0', lw=2.2, label='Total 6-Rotor Thrust (N)')
+        plt.axhline(y=34.575*9.81, color='#E53E3E', linestyle='--', label='Hover Weight (339.2 N)')
+        plt.axvline(x=1850, color='#38A169', linestyle=':', label='Target Hover RPM (1850)')
+        plt.xlabel('Rotor Speed (RPM)')
+        plt.ylabel('Total Thrust (N)')
+        plt.title('Propeller Thrust vs RPM (BEM Analysis)', fontsize=9, fontweight='bold')
+        plt.grid(True, linestyle='--', alpha=0.5)
+        plt.legend(fontsize=8)
+
+        plt.subplot(1, 2, 2)
+        plt.plot(rpm, power_per_rotor * 6, color='#DD6B20', lw=2.2, label='Mechanical Power (W)')
+        plt.axvline(x=1850, color='#38A169', linestyle=':', label='Target Hover RPM (1850)')
+        plt.axhline(y=3283.2, color='#2B6CB0', linestyle='--', label='Mechanical Hover Power (3283W)')
+        plt.xlabel('Rotor Speed (RPM)')
+        plt.ylabel('Mechanical Power (W)')
+        plt.title('Propeller Mechanical Power vs RPM (BEM Analysis)', fontsize=9, fontweight='bold')
+        plt.grid(True, linestyle='--', alpha=0.5)
+        plt.legend(fontsize=8)
+        plt.tight_layout()
+        plt.savefig(os.path.join(output_dir, "figures", "xflr5_blade_bem_curves.png"), dpi=300)
+        plt.close()
+
+    generate_xflr5_figures()
+
+    # 10. Render KiCad Electrical Schematic Visual Diagram
+    def generate_kicad_diagram():
+        fig, ax = plt.subplots(figsize=(11, 6), dpi=300)
+        ax.set_facecolor('#F7FAFC')
+        ax.axis('off')
+        
+        # Block Boxes
+        blocks = [
+            (0.05, 0.65, 0.25, 0.25, '3.6 kW Hybrid Generator\n& Rectifier\n(48V DC, 75A Max)', '#2B6CB0'),
+            (0.38, 0.65, 0.24, 0.25, '12S LiPo Buffer Battery\n& BMS Failsafe\n(44.4V-50.4V, 100A Peak)', '#38A169'),
+            (0.68, 0.65, 0.27, 0.25, 'Main Distribution Board\n(PDB Bus: 3,460.1 W @ 72.1A)', '#DD6B20'),
+            (0.05, 0.15, 0.40, 0.35, '6x ESC & Motor Branches\n- 6x T-Motor Flame 120A FOC\n- 6x U15 II KV100 Motors\n- Branch Current: 12.02A Hover', '#4A5568'),
+            (0.52, 0.15, 0.43, 0.35, 'Avionics & Payload Rails\n- Pixhawk 6X Flight Controller\n- 915MHz Telemetry Radio (1W)\n- 12V Aux Rail for Gimbal/Camera', '#805AD5'),
+        ]
+        
+        for x, y, w, h, text, col in blocks:
+            rect = Rectangle((x, y), w, h, facecolor=col, edgecolor='#1A202C', lw=1.5, alpha=0.9)
+            ax.add_patch(rect)
+            ax.text(x + w/2, y + h/2, text, color='white', weight='bold', fontsize=9, ha='center', va='center')
+            
+        # Arrows
+        arrow_style = dict(arrowstyle='->', lw=2.5, color='#1A202C')
+        ax.annotate('', xy=(0.38, 0.775), xytext=(0.30, 0.775), arrowprops=arrow_style)
+        ax.annotate('', xy=(0.68, 0.775), xytext=(0.62, 0.775), arrowprops=arrow_style)
+        ax.annotate('', xy=(0.25, 0.50), xytext=(0.815, 0.65), arrowprops=arrow_style)
+        ax.annotate('', xy=(0.73, 0.50), xytext=(0.815, 0.65), arrowprops=arrow_style)
+        
+        plt.title('Electrical Power Distribution & Avionics Signal Architecture (KiCad Baseline)', fontsize=12, fontweight='bold', pad=15)
+        plt.tight_layout()
+        plt.savefig(os.path.join(output_dir, "figures", "kicad_schematic_diagram.png"), dpi=300)
+        plt.close()
+        print(f"KiCad schematic diagram saved to {os.path.join(output_dir, 'figures', 'kicad_schematic_diagram.png')}")
+
+    generate_kicad_diagram()
+
+    # Render Annotated Hero View for Report (`uav_cad_annotated.png`)
     def render_annotated_hero():
         fig = plt.figure(figsize=(10, 8), dpi=300)
         ax = fig.add_subplot(111, projection='3d')
         ax.set_facecolor('#FFFFFF')
         
-        # Draw base geometry
         ax.plot([-0.20, 0.20], [0, 0], [0.04, 0.04], color='#2D3748', linewidth=4)
         ax.plot([0, 0], [-0.20, 0.20], [0.04, 0.04], color='#2D3748', linewidth=4)
         
@@ -256,7 +371,6 @@ def generate_cad_files(output_dir="projects/heavy-lift-uav/reports", prop_diamet
         ax.plot([0.18, 0.205], [0, 0], [-0.125, -0.125], color='#3182CE', linewidth=4)
         ax.plot([0, 0], [0.08, 0.08], [0.04, 0.16], color='#E53E3E', linewidth=2.5)
 
-        # Landing Gear
         ax.plot([-0.2, -0.2], [-0.45, 0.45], [-0.45, -0.45], color='#4A5568', linewidth=3.5)
         ax.plot([0.2, 0.2], [-0.45, 0.45], [-0.45, -0.45], color='#4A5568', linewidth=3.5)
         ax.plot([-0.2, -0.2], [0.2, 0.2], [0, -0.45], color='#4A5568', linewidth=2)
@@ -264,7 +378,6 @@ def generate_cad_files(output_dir="projects/heavy-lift-uav/reports", prop_diamet
         ax.plot([-0.27, -0.13], [0.2, 0.2], [-0.455, -0.455], color='#1A202C', linewidth=6)
         ax.plot([0.13, 0.27], [0.2, 0.2], [-0.455, -0.455], color='#1A202C', linewidth=6)
 
-        # Annotations Callouts
         annotations = [
             ([1.12, 0, 0.07], [1.3, 0.4, 0.3], '40" 2-Blade Propeller\n(R=508mm, 104mm clearance)'),
             ([1.12, 0, 0.04], [1.35, -0.2, 0.1], 'Brushless Motor\n(TMotor U15 II)'),

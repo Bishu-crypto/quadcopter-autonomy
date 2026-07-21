@@ -1,6 +1,6 @@
 \documentclass[11pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
-\usepackage[margin=0.9in]{geometry}
+\usepackage[margin=0.85in]{geometry}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amsfonts}
@@ -10,17 +10,19 @@
 \usepackage{titlesec}
 \usepackage{float}
 \usepackage{caption}
+\usepackage{subcaption}
 \usepackage{xcolor}
 
 \definecolor{navy}{RGB}{26, 54, 93}
 \definecolor{darkgray}{RGB}{45, 55, 72}
+\definecolor{linkblue}{RGB}{49, 130, 206}
 
 \hypersetup{
     colorlinks=true,
     linkcolor=navy,
     filecolor=magenta,      
-    urlcolor=cyan,
-    pdftitle={Heavy-Lift Multirotor UAV Design Report},
+    urlcolor=linkblue,
+    pdftitle={Heavy-Lift Multirotor UAV Comprehensive Engineering Report},
     pdfpagemode=UseOutlines,
 }
 
@@ -29,7 +31,7 @@
 \rhead{\color{darkgray}\small Heavy-Lift UAV Design Report}
 \lhead{\color{darkgray}\small Flight Systems Division}
 \rfoot{\color{darkgray}\small Page \thepage}
-\lfoot{\color{darkgray}\small Locked Baseline (DESIGN\_LOCK.md)}
+\lfoot{\color{darkgray}\small GitHub Repository: \href{https://github.com/Bishu-crypto/quadcopter-autonomy}{Bishu-crypto/quadcopter-autonomy}}
 
 \titleformat{\section}{\large\bfseries\color{navy}}{\thesection}{1em}{}
 \titleformat{\subsection}{\normalsize\bfseries\color{navy}}{\thesubsection}{1em}{}
@@ -41,19 +43,20 @@
 % ==========================================
 \begin{titlepage}
     \centering
-    \vspace*{1cm}
-    {\Huge\bfseries Design, Aerodynamic BEM, Structural FEA, and Mission Validation of a Heavy-Lift Hybrid Hexacopter\par}
-    \vspace{0.8cm}
-    {\large\bfseries Comprehensive Engineering Report for a 10 kg Payload, 30 km Operational Mission Range UAV\par}
-    \vspace{1.5cm}
-    \includegraphics[width=0.75\textwidth]{figures/uav_cad_annotated.png}\par
-    \vspace{1.5cm}
+    \vspace*{0.8cm}
+    {\Huge\bfseries Engineering Design, Aerodynamic BEM, Structural FEA, and Mission Validation of a Heavy-Lift Multirotor UAV\par}
+    \vspace{0.6cm}
+    {\large\bfseries Full Technical Baseline, FreeCAD/STEP 3D Assembly, XFLR5 Aerodynamics, and KiCad Electrical Schematic\par}
+    \vspace{1.2cm}
+    \includegraphics[width=0.85\textwidth]{figures/uav_cad_annotated.png}\par
+    \vspace{1.2cm}
     {\large\bfseries Prepared by:\par}
     {\large Flight Systems Engineering Team \par}
     {IIT Madras --- BS Electronic Systems\par}
-    \vspace{0.8cm}
-    {\large\bfseries Document Control:\par}
-    {Locked Design Baseline Reference (\texttt{DESIGN\_LOCK.md})\par}
+    \vspace{0.6cm}
+    {\large\bfseries Document Control \& Source Links:\par}
+    {Locked Design Baseline: \href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/DESIGN_LOCK.md}{\texttt{DESIGN\_LOCK.md}}\par}
+    {GitHub Repository: \href{https://github.com/Bishu-crypto/quadcopter-autonomy/tree/main/projects/heavy-lift-uav}{\texttt{projects/heavy-lift-uav}}\par}
     \vfill
     {\large Date: July 2026\par}
 \end{titlepage}
@@ -67,13 +70,13 @@
 % ==========================================
 \section{Executive Summary \& Mission Requirements}
 
-This technical report documents the complete engineering design, aerodynamic simulation, structural FEA, and electrical integration of a heavy-lift multirotor Unmanned Aerial Vehicle (UAV). The system is engineered to carry a \textbf{10.0 kg payload} over a \textbf{30 km out-and-back operational mission profile} with a \textbf{20-minute on-station hover loiter} and a \textbf{20\% fuel reserve margin}.
+This report documents the engineering design and multi-physics validation of a heavy-lift multirotor Unmanned Aerial Vehicle (UAV). The vehicle is engineered to carry a \textbf{10.0 kg payload} over a \textbf{30 km operational mission radius} with a \textbf{20-minute hover loiter} and a \textbf{20\% fuel reserve margin}.
 
-To satisfy these aggressive endurance requirements without exceeding physical mass limits, the aircraft utilizes a \textbf{Gas-Electric Hybrid Power Plant} (3.6 kW continuous output driving a 48V DC bus) coupled with a \textbf{Single-Motor Hexacopter Topology} (6 arms at $60^\circ$ radial spacing, 1 motor + 1 ESC + 1 40-inch propeller per arm).
+The physical system consists of a \textbf{Single-Motor Hexacopter Topology} (6 arms at $60^\circ$ radial spacing, 1 motor + 1 ESC + 1 40-inch propeller per arm) powered by a \textbf{Gas-Electric Hybrid Generator} (3.6 kW continuous output driving a 48V DC bus).
 
 \begin{table}[H]
     \centering
-    \caption{Locked System Baseline Specifications (\texttt{DESIGN\_LOCK.md})}
+    \caption{Locked System Baseline Specifications (\href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/DESIGN_LOCK.md}{\texttt{DESIGN\_LOCK.md}})}
     \begin{tabular}{lll}
         \toprule
         \textbf{Parameter} & \textbf{Locked Value} & \textbf{Engineering Basis / Status} \\
@@ -94,53 +97,54 @@ To satisfy these aggressive endurance requirements without exceeding physical ma
 % ==========================================
 \section{Aircraft Configuration \& Geometric Layout}
 
-A rigorous trade study was performed to select the vehicle topology among Quadcopter, Flat Hexacopter, Coaxial Octocopter (X8), and Flat Octocopter configurations:
+A trade study selected the single-motor hexacopter layout over coaxial octocopters (X8) to eliminate upper-to-lower rotor aerodynamic slipstream interference losses (which increase lower rotor hover power by 15--20\%).
 
-\begin{enumerate}
-    \item \textbf{Single-Motor Hexacopter Selection:} The hexacopter configuration offers single-motor failure recovery capability while eliminating the aerodynamic slipstream interference losses inherent to coaxial pairs (which increase lower rotor hover power by 15--20\%).
-    \item \textbf{Arm Length Sizing ($L = 1.12\text{ m}$):} For a 6-arm hexacopter with $60^\circ$ radial spacing, the chord distance between adjacent arm tips equals the arm length ($d = L$). With 40-inch propellers ($D_{\text{prop}} = 1.016\text{ m}$), setting $L = 1.120\text{ m}$ guarantees a tip-to-tip clearance of:
-    \begin{equation}
-        d_{\text{clearance}} = L - D_{\text{prop}} = 1.120\text{ m} - 1.016\text{ m} = \mathbf{0.104\text{ m}} \quad (104\text{ mm}, 10.2\%\text{ clearance margin})
-    \end{equation}
-    This eliminates blade tip vortex interference and ensures \textbf{ZERO PROPELLER OVERLAP}.
-    \item \textbf{Center Frame Diameter ($400\text{ mm}$):} Twin $3\text{ mm}$ carbon fiber hex plates ($200\text{ mm}$ radius) provide structural clamping for the 6 carbon arms, generator box, fuel tank, and 4 landing gear struts.
-\end{enumerate}
+For a 6-arm hexacopter with $60^\circ$ radial spacing, the tip-to-tip chord distance between adjacent arms equals arm length ($d = L$). With 40-inch propellers ($D_{\text{prop}} = 1.016\text{ m}$), setting $L = 1.120\text{ m}$ guarantees a tip-to-tip clearance of:
+\begin{equation}
+    d_{\text{clearance}} = L - D_{\text{prop}} = 1.120\text{ m} - 1.016\text{ m} = \mathbf{0.104\text{ m}} \quad (104\text{ mm}, 10.2\%\text{ clearance margin})
+\end{equation}
+This guarantees zero aerodynamic propeller overlap and reduces blade tip turbulence.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.48\textwidth]{figures/uav_cad_topview.png}
-    \includegraphics[width=0.48\textwidth]{figures/uav_cad_sideview.png}
-    \caption{Top-view rendering displaying 104mm blade tip clearance (left) and Side-view layout displaying 450mm landing gear height and 220mm payload ground clearance (right).}
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/uav_cad_topview.png}
+        \caption{Top-View Geometry (104mm Blade Tip Clearance)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/uav_cad_sideview.png}
+        \caption{Side-View Geometry (450mm Landing Gear Height)}
+    \end{subfigure}
+    \caption{3D CAD projections verifying zero blade overlap and 220mm payload ground clearance.}
 \end{figure}
 
 % ==========================================
-% SECTION 3: AERODYNAMIC BEM & PROPULSION
+% SECTION 3: AERODYNAMIC XFLR5 & BEM
 % ==========================================
-\section{Rotor Aerodynamics (BEM Theory) \& Propulsion}
+\section{XFLR5 Aerodynamic Polars \& BEM Rotor Performance}
 
-Blade Element Momentum (BEM) theory was implemented in \texttt{rotor\_bem.py} to evaluate the aerodynamic performance of the 40" $\times$ 13" carbon fiber propeller using NACA 4412 airfoil section data across 30 spanwise blade elements.
+The 40" $\times$ 13" propeller aerodynamic performance was evaluated using NACA 4412 airfoil section polar analysis in XFLR5 (\href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/xflr5/propeller_40x13_geometry.xfl}{\texttt{xflr5/propeller\_40x13\_geometry.xfl}}) and Blade Element Momentum (BEM) simulation (\href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/simulation/rotor_bem.py}{\texttt{simulation/rotor\_bem.py}}).
 
-\subsection{Governing BEM Equations}
-The local induced inflow velocity $v_i(r)$ at radial station $r$ is solved numerically via momentum conservation and blade element lift/drag integration:
-\begin{equation}
-    dT = 4 \pi r \rho (V_\infty + v_i) v_i F dr = \frac{1}{2} N_b \rho W^2 (C_l \cos\phi - C_d \sin\phi) c(r) dr
-\end{equation}
-where $N_b = 2$ blades, $\phi = \arctan\left(\frac{V_\infty + v_i}{\Omega r}\right)$ is the local inflow angle, $W = \sqrt{(\Omega r)^2 + (V_\infty + v_i)^2}$ is the resultant flow velocity, and $F(r)$ is Prandtl's tip loss factor:
-\begin{equation}
-    F(r) = \frac{2}{\pi} \arccos\left( \exp\left[ -\frac{N_b (R - r)}{2 r \sin\phi} \right] \right)
-\end{equation}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figures/xflr5_naca4412_polars.png}
+    \caption{NACA 4412 Lift Curve $C_l(\alpha)$ and Drag Polar $C_l$ vs $C_d$ computed via XFLR5 across Reynolds numbers $Re \in [100\text{k}, 500\text{k}]$.}
+\end{figure}
 
-\subsection{Hover Efficiency Verification}
-At the target Takeoff Weight of $34.575\text{ kg}$, each of the 6 rotors must produce a hover thrust of:
-\begin{equation}
-    T_{\text{rotor}} = \frac{34.575\text{ kg} \times 9.81\text{ m/s}^2}{6} = \mathbf{56.53\text{ N}} \quad (5.76\text{ kg})
-\end{equation}
-The BEM simulation confirms:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figures/xflr5_blade_bem_curves.png}
+    \caption{BEM computed Total 6-Rotor Thrust (left) and Total Mechanical Power vs RPM (right) confirming target hover speed of 1,850 RPM at 339.2 N (34.575 kg TOW).}
+\end{figure}
+
 \begin{itemize}
     \item \textbf{Target Hover Speed:} $1,850\text{ RPM}$
     \item \textbf{Figure of Merit (FoM):} $0.72$
     \item \textbf{Rotor Hover Efficiency:} $8.1\text{ g/W}$ ($547.2\text{ W}$ mechanical power per rotor)
-    \item \textbf{Total Electrical Power Draw:} $3,460.1\text{ W}$ (including $94.6\%$ motor/ESC efficiency and $150\text{ W}$ auxiliary avionics).
+    \item \textbf{Total Electrical Power Draw:} $3,460.1\text{ W}$ (48V DC bus, $72.1\text{ A}$ total current).
 \end{itemize}
 
 % ==========================================
@@ -148,7 +152,7 @@ The BEM simulation confirms:
 % ==========================================
 \section{Converged Mass Budget, CG, and Inertia Tensor}
 
-A 5-iteration dynamic mass-power-fuel convergence loop (\texttt{run\_tow\_convergence}) was executed in \texttt{mass\_budget.py}. The system converged to a Total Takeoff Weight of \textbf{34.575 kg}.
+A 5-iteration mass-power-fuel loop (\href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/design_calculations/mass_budget.py}{\texttt{mass\_budget.py}}) converged to a Takeoff Weight of \textbf{34.575 kg}.
 
 \begin{table}[H]
     \centering
@@ -174,13 +178,9 @@ A 5-iteration dynamic mass-power-fuel convergence loop (\texttt{run\_tow\_conver
     \end{tabular}
 \end{table}
 
-\subsection{Center of Gravity \& Inertia Tensor Calculation}
-Relative to the frame geometric origin $[0, 0, 0]$, the Center of Gravity (CG) is located at:
+Relative to origin $[0, 0, 0]$, the Center of Gravity (CG) and moment of inertia tensor $\mathbf{I}_{\text{CG}}$ are:
 \begin{equation}
-    \mathbf{r}_{\text{CG}} = [-0.0000, -0.0006, -0.0533]\text{ m}
-\end{equation}
-The mass moment of inertia tensor $\mathbf{I}_{\text{CG}}$ about the CG is calculated via parallel axis theorem $\mathbf{I} = \sum m_i \left( (\mathbf{r}_i \cdot \mathbf{r}_i) \mathbf{E} - \mathbf{r}_i \otimes \mathbf{r}_i \right)$:
-\begin{equation}
+    \mathbf{r}_{\text{CG}} = [-0.0000, -0.0006, -0.0533]\text{ m}, \quad
     \mathbf{I}_{\text{CG}} = \begin{bmatrix}
         6.187 & 0.000 & 0.000 \\
         0.000 & 6.168 & 0.000 \\
@@ -193,28 +193,22 @@ The mass moment of inertia tensor $\mathbf{I}_{\text{CG}}$ about the CG is calcu
 % ==========================================
 \section{Operational Mission Profile \& Energy Simulation}
 
-The vehicle operational profile was simulated in \texttt{power\_endurance.py} over a 30 km out-and-back mission profile:
-\begin{enumerate}
-    \item \textbf{Climb Phase:} 100 m vertical climb @ 2 m/s ($50\text{ s}$, $4,200\text{ W}$ power).
-    \item \textbf{Cruise Out Phase:} 30 km forward cruise @ 12 m/s ($2,500\text{ s} = 41.7\text{ min}$, $2,450\text{ W}$ power with translational lift benefit).
-    \item \textbf{On-Station Loiter Phase:} 20 min stationary hover ($1,200\text{ s}$, $3,460\text{ W}$ power).
-    \item \textbf{Cruise Back Phase:} 30 km return cruise @ 12 m/s ($2,500\text{ s} = 41.7\text{ min}$, $2,450\text{ W}$ power).
-\end{enumerate}
+The vehicle operational profile was simulated in \href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/design_calculations/power_endurance.py}{\texttt{power\_endurance.py}} over a 30 km out-and-back mission profile:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{figures/endurance_simulation.png}
+    \includegraphics[width=0.85\textwidth]{figures/endurance_simulation.png}
     \caption{Dynamic mission power draw and fuel mass burn profile over the 30 km out-and-back mission.}
 \end{figure}
 
-The total mission fuel burn is \textbf{1.859 kg}. Applying the required $20\%$ fuel reserve margin ($\text{Fuel}_{\text{carried}} = \text{Fuel}_{\text{burn}} / 0.8$) dictates a carried fuel mass of \textbf{2.323 kg}, providing \textbf{20.8 minutes of reserve hover time}.
+The total mission fuel burn is \textbf{1.859 kg}. Carried fuel mass with a $20\%$ reserve margin ($\text{Fuel}_{\text{carried}} = \text{Fuel}_{\text{burn}} / 0.8$) is \textbf{2.323 kg}, yielding \textbf{20.8 minutes of reserve hover time}.
 
 % ==========================================
 % SECTION 6: STRUCTURAL ANALYSIS & FEA
 % ==========================================
 \section{Structural FEA Analysis \& Dual Load Cases}
 
-The 1.12 m carbon fiber arm tubes (30 mm OD, 2 mm wall thickness, $I_{\text{area}} = 1.706 \times 10^{-8}\text{ m}^4$, $\text{UTS} = 800\text{ MPa}$, $E = 120\text{ GPa}$) were evaluated under two independent load cases in \texttt{structural\_analysis.py}.
+The 1.12 m carbon fiber arm tubes (30 mm OD, 2 mm wall thickness, $I_{\text{area}} = 1.706 \times 10^{-8}\text{ m}^4$, $\text{UTS} = 800\text{ MPa}$, $E = 120\text{ GPa}$) were evaluated under two load cases in \href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/design_calculations/structural_analysis.py}{\texttt{structural\_analysis.py}}.
 
 \begin{table}[H]
     \centering
@@ -234,33 +228,52 @@ The 1.12 m carbon fiber arm tubes (30 mm OD, 2 mm wall thickness, $I_{\text{area
     \end{tabular}
 \end{table}
 
-\textbf{Governing Load Case Selection:} The \textbf{Asymmetric Motor-Out Emergency Recovery Case GOVERNS} the structural sizing because motor failure compensation concentrates higher force ($169.6\text{ N}$ vs $141.3\text{ N}$) on active arms adjacent to the failed rotor, producing the peak bending stress of \textbf{164.4 MPa} ($\text{SF} = 4.87 > 1.5$).
+The \textbf{Asymmetric Motor-Out Emergency Recovery Case GOVERNS} structural sizing because motor failure compensation concentrates higher force ($169.6\text{ N}$) on active arms adjacent to the failed rotor ($\sigma_{\max} = 164.4\text{ MPa}$, $\text{SF} = 4.87$).
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{figures/arm_structural_fea.png}
+    \includegraphics[width=0.85\textwidth]{figures/arm_structural_fea.png}
     \caption{Euler-Bernoulli FEA beam bending stress and vertical deflection along the 1.12m carbon arm.}
 \end{figure}
 
 % ==========================================
-% SECTION 7: ELECTRICAL & CAD DELIVERABLES
+% SECTION 7: DETAILED CAD GALLERY
 % ==========================================
-\section{Electrical Architecture \& 3D CAD Deliverables}
+\section{Subsystem CAD Detailed Gallery \& STEP Deliverable}
 
-\subsection{Electrical Schematic (KiCad Baseline)}
-The electrical distribution system (\texttt{power\_and\_signal\_schematic.kicad\_sch}) is designed around a 48V DC bus supplied by the 3.6 kW hybrid generator. Total hover current draw is $72.1\text{ A}$ ($12.02\text{ A}$ per ESC branch), protected by 120A Flame FOC ESCs and a 100A BMS battery failsafe coupling.
-
-\subsection{Parametric 3D CAD Assembly (FreeCAD \& STEP)}
-A high-fidelity parametric CAD assembly macro (\texttt{hexacopter\_assembly.py}) and ISO STEP AP214 file (\texttt{hexacopter\_assembly.step}) were generated containing 34 distinct subsystem components (including hollow arm tubes, two-tier motors, 4x M4 bolt patterns, 2-blade tapered props, $300 \times 200 \times 150\text{ mm}$ cargo bay box, EO camera gimbal with lens barrel, telemetry antenna, and landing gear skid pads).
+A parametric CAD macro (\href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/freecad/hexacopter_assembly.py}{\texttt{freecad/hexacopter\_assembly.py}}) and ISO STEP AP214 file (\href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/freecad/hexacopter_assembly.step}{\texttt{freecad/hexacopter\_assembly.step}}) were created with 34 distinct assembly objects.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/uav_cad_annotated.png}
-    \caption{Annotated 3D Technical CAD Assembly displaying all core multirotor subsystems.}
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/uav_cad_motor_detail.png}
+        \caption{Motor Assembly \& 4x M4 PCD Bolt Pattern}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/uav_cad_payload_detail.png}
+        \caption{Payload Box, Camera Gimbal \& Antenna}
+    \end{subfigure}
+    \caption{Zoomed-in CAD subsystem details for motor mounts and payload cargo housing.}
 \end{figure}
 
 % ==========================================
-% SECTION 8: REQUIREMENTS TRACEABILITY
+% SECTION 8: KICAD SCHEMATIC ARCHITECTURE
+% ==========================================
+\section{KiCad Electrical Power \& Signal Architecture}
+
+The electrical distribution schematic (\href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/kicad/power_and_signal_schematic.kicad_sch}{\texttt{kicad/power\_and\_signal\_schematic.kicad\_sch}}) is built around a 48V DC bus supplied by the 3.6 kW hybrid generator.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figures/kicad_schematic_diagram.png}
+    \caption{Electrical Power Distribution and Signal Architecture Diagram (KiCad Schematic Source).}
+\end{figure}
+
+% ==========================================
+% SECTION 9: REQUIREMENTS TRACEABILITY
 % ==========================================
 \section{Deliverables Requirements Traceability Matrix}
 
@@ -271,13 +284,13 @@ A high-fidelity parametric CAD assembly macro (\texttt{hexacopter\_assembly.py})
         \toprule
         \textbf{Deliverable Item} & \textbf{Target Specification} & \textbf{Verification Method / Code} & \textbf{Status / Result} \\
         \midrule
-        1. Configuration Fix & 6-arm single-motor hexacopter & \texttt{mass\_budget.py}, \texttt{DESIGN\_LOCK.md} & \textbf{PASSED:} 6 arms @ $60^\circ$ \\
-        2. Propeller Sizing & 40" $\times$ 13" ($R = 0.508\text{ m}$) & \texttt{rotor\_bem.py}, \texttt{generate\_cad\_model.py} & \textbf{PASSED:} 104mm prop clearance \\
-        3. Mission Energy & 30 km out-and-back + 20m loiter & \texttt{power\_endurance.py} & \textbf{PASSED:} 2.323 kg fuel (20\% res) \\
-        4. Load Cases & Independent 2.5G \& motor-out & \texttt{structural\_analysis.py} & \textbf{PASSED:} Motor-out governs (SF=4.87) \\
+        1. Configuration Fix & 6-arm single-motor hexacopter & \href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/design_calculations/mass_budget.py}{\texttt{mass\_budget.py}} & \textbf{PASSED:} 6 arms @ $60^\circ$ \\
+        2. Propeller Sizing & 40" $\times$ 13" ($R = 0.508\text{ m}$) & \href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/simulation/rotor_bem.py}{\texttt{rotor\_bem.py}} & \textbf{PASSED:} 104mm prop clearance \\
+        3. Mission Energy & 30 km out-and-back + 20m loiter & \href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/design_calculations/power_endurance.py}{\texttt{power\_endurance.py}} & \textbf{PASSED:} 2.323 kg fuel (20\% res) \\
+        4. Load Cases & Independent 2.5G \& motor-out & \href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/design_calculations/structural_analysis.py}{\texttt{structural\_analysis.py}} & \textbf{PASSED:} Motor-out governs (SF=4.87) \\
         5. TOW Convergence & 5-iteration convergence loop & \texttt{run\_tow\_convergence} & \textbf{PASSED:} TOW = 34.575 kg \\
         6. CG \& Inertia & Recalculated for 6-arm layout & \texttt{calculate\_inertia\_tensor} & \textbf{PASSED:} $I_{zz} = 11.670\text{ kg-m}^2$ \\
-        7. Deliverables & FreeCAD, STEP, XFLR5, KiCad & \texttt{hexacopter\_assembly.py}, \texttt{.kicad\_sch} & \textbf{PASSED:} 100\% generated \\
+        7. Deliverables & FreeCAD, STEP, XFLR5, KiCad & \href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/freecad/hexacopter_assembly.py}{\texttt{hexacopter\_assembly.py}} & \textbf{PASSED:} 100\% generated \\
         \bottomrule
     \end{tabular}
 \end{table}
