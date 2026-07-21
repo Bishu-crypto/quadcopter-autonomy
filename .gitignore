@@ -36,3 +36,10 @@ Thumbs.db
 *.swo
 .vscode/
 .idea/
+
+# LaTeX build outputs
+*.aux
+*.log
+*.out
+*.toc
+

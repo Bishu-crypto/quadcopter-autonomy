@@ -1,0 +1,97 @@
+(kicad_sch (version 20230121) (generator eeschema)
+
+  (paper "A3")
+
+  (title_block
+    (title "Heavy-Lift Gas-Electric Hybrid Hexacopter - Power & Signal Schematic")
+    (date "2026-07-21")
+    (rev "1.1")
+    (company "Flight Systems Division")
+    (comment 1 "Locked Baseline (DESIGN_LOCK.md): 6 Arms @ 60 deg (L=1.12m), 40in Props, 3460.1W Hover Power, TOW 34.575kg")
+    (comment 2 "Power Distribution: 48V Bus, 72.1A Total Hover Current (12.02A/Branch), 75A Gen Max Output")
+    (comment 3 "Safety Factor & Peak Rating: 120A Flame ESCs, 100A BMS Battery Failsafe Coupling")
+  )
+
+  (lib_symbols
+    (symbol "Power:GND" (power)
+      (property "Reference" "#PWR" (at 0 -2.54 0) (effects (font (size 1.27 1.27))))
+      (property "Value" "GND" (at 0 -4.445 0) (effects (font (size 1.27 1.27))))
+      (symbol "GND_0_1"
+        (polyline (pts (xy 0 0) (xy 0 -1.27) (xy -1.27 -1.27) (xy 1.27 -1.27) (xy 0 -2.54)) (stroke (width 0.254)))
+      )
+    )
+  )
+
+  ;; ==================== TEXT ANNOTATIONS & TITLE BLOCKS ====================
+  (text "HEAVY-LIFT UAV MAIN POWER PATH (48V HYBRID DC BUS)"
+    (at 40 40 0)
+    (effects (font (size 2.5 2.5) (bold bold)))
+  )
+
+  (text "1. HYBRID GENERATOR & RECTIFIER SYSTEM\n- Output: 3.6 kW Continuous (48V DC, 75A Max)\n- Fuel: Gasoline 2-Stroke Gen\n- Cable Rating: 48V_BUS, MAX 75A"
+    (at 40 60 0)
+    (effects (font (size 1.8 1.8)))
+  )
+
+  (text "2. BUFFER BATTERY & BMS FAILSAFE\n- Battery: 12S LiPo (44.4V - 50.4V, 4500mAh 45C)\n- Failsafe BMS Parallel Coupling (Ideal Diode)\n- Cable Rating: BAT_BUS, MAX 100A PEAK"
+    (at 130 60 0)
+    (effects (font (size 1.8 1.8)))
+  )
+
+  (text "3. MAIN POWER DISTRIBUTION BOARD (PDB)\n- Input: 48V DC Bus (Total Hover Power: 3,460.1 W @ 72.1A Total)\n- 6x ESC Branch Outputs: 48V DC, 12.02A Hover / 60A Peak per Branch"
+    (at 220 60 0)
+    (effects (font (size 1.8 1.8)))
+  )
+
+  ;; ==================== POWER BRANCH WIRING LABELS ====================
+  (text "WIRE LABEL: [ESC_1_PWR] -> 48V, 12.02A Hover / 60A Peak (120A ESC Rating)"
+    (at 40 120 0)
+    (effects (font (size 1.5 1.5) (italic italic)))
+  )
+
+  (text "WIRE LABEL: [ESC_2_PWR] -> 48V, 12.02A Hover / 60A Peak (120A ESC Rating)"
+    (at 40 135 0)
+    (effects (font (size 1.5 1.5) (italic italic)))
+  )
+
+  (text "WIRE LABEL: [ESC_3_PWR] -> 48V, 12.02A Hover / 60A Peak (120A ESC Rating)"
+    (at 40 150 0)
+    (effects (font (size 1.5 1.5) (italic italic)))
+  )
+
+  (text "WIRE LABEL: [ESC_4_PWR] -> 48V, 12.02A Hover / 60A Peak (120A ESC Rating)"
+    (at 40 165 0)
+    (effects (font (size 1.5 1.5) (italic italic)))
+  )
+
+  (text "WIRE LABEL: [ESC_5_PWR] -> 48V, 12.02A Hover / 60A Peak (120A ESC Rating)"
+    (at 40 180 0)
+    (effects (font (size 1.5 1.5) (italic italic)))
+  )
+
+  (text "WIRE LABEL: [ESC_6_PWR] -> 48V, 12.02A Hover / 60A Peak (120A ESC Rating)"
+    (at 40 195 0)
+    (effects (font (size 1.5 1.5) (italic italic)))
+  )
+
+  ;; ==================== SIGNAL PATH TEXT BLOCK ====================
+  (text "AVIONICS & CONTROL SIGNAL ARCHITECTURE"
+    (at 40 230 0)
+    (effects (font (size 2.5 2.5) (bold bold)))
+  )
+
+  (text "1. FLIGHT CONTROLLER (Pixhawk 6X)\n- PWM Outputs [PWM_1 .. PWM_6] -> 6x ESC Signal Inputs\n- Telemetry 1 -> 915 MHz RF Telemetry Radio (1W Output)\n- GPS / RTK -> Dual Neo-3 GPS/RTK Receivers\n- CAN Bus [CAN1_H/L] -> Hybrid Generator ECU Telemetry & BMS Status\n- Companion Computer -> Ethernet MAVLink to Nvidia Jetson Orin Nano"
+    (at 40 255 0)
+    (effects (font (size 1.8 1.8)))
+  )
+
+  (text "2. PAYLOAD & VIDEO DOWNLINK\n- Camera / Gimbal -> 12V Regulated Auxiliary Power Rail (12V, 10A Max)\n- FPV Video Transmitter -> 5.8GHz VTX Downlink"
+    (at 220 255 0)
+    (effects (font (size 1.8 1.8)))
+  )
+
+  ;; Wire Connections
+  (wire (pts (xy 40 80) (xy 110 80)) (stroke (width 0.5)))
+  (wire (pts (xy 130 80) (xy 200 80)) (stroke (width 0.5)))
+  (wire (pts (xy 220 80) (xy 350 80)) (stroke (width 0.5)))
+)
