@@ -4,6 +4,7 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{amssymb}
 \usepackage{booktabs}
 \usepackage{hyperref}
 \usepackage{fancyhdr}
@@ -29,9 +30,9 @@
 \pagestyle{fancy}
 \fancyhf{}
 \rhead{\color{darkgray}\small Heavy-Lift UAV Design Report}
-\lhead{\color{darkgray}\small Flight Systems Division}
+\lhead{\color{darkgray}\small IIT Madras --- BS Electronic Systems}
 \rfoot{\color{darkgray}\small Page \thepage}
-\lfoot{\color{darkgray}\small GitHub Repository: \href{https://github.com/Bishu-crypto/quadcopter-autonomy}{Bishu-crypto/quadcopter-autonomy}}
+\lfoot{\color{darkgray}\small GitHub: \href{https://github.com/Bishu-crypto/quadcopter-autonomy}{github.com/Bishu-crypto/quadcopter-autonomy} | Vaibhav Parashari}
 
 \titleformat{\section}{\large\bfseries\color{navy}}{\thesection}{1em}{}
 \titleformat{\subsection}{\normalsize\bfseries\color{navy}}{\thesubsection}{1em}{}
@@ -51,7 +52,7 @@
     \includegraphics[width=0.85\textwidth]{figures/uav_cad_annotated.png}\par
     \vspace{1.2cm}
     {\large\bfseries Prepared by:\par}
-    {\large Flight Systems Engineering Team \par}
+    {\large Vaibhav Parashari \par}
     {IIT Madras --- BS Electronic Systems\par}
     \vspace{0.6cm}
     {\large\bfseries Document Control \& Source Links:\par}
@@ -308,5 +309,43 @@ The electrical distribution schematic (\href{https://github.com/Bishu-crypto/qua
         \bottomrule
     \end{tabular}
 \end{table}
+
+\section{Final Self-Consistency Summary Table}
+
+To guarantee design rigor for submission, all key parameters were audited across all underlying python solvers (\href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/design_calculations/mass_budget.py}{\texttt{mass\_budget.py}}, \href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/simulation/rotor_bem.py}{\texttt{rotor\_bem.py}}, \href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/design_calculations/power_endurance.py}{\texttt{power\_endurance.py}}, and \href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/design_calculations/structural_analysis.py}{\texttt{structural\_analysis.py}}):
+
+\begin{table}[H]
+    \centering
+    \caption{Final Self-Consistency Summary Table}
+    \begin{tabular}{llp{6.5cm}l}
+        \toprule
+        \textbf{Design Parameter} & \textbf{Value / Spec} & \textbf{Cross-Solver Consistency Audit} & \textbf{Check Flag} \\
+        \midrule
+        Aircraft Configuration & Single-Motor Hexacopter & Identical layout in Mass Budget, CAD Mesh, and Power models. & \textbf{$\checkmark$ CONSISTENT} \\
+        Motor / ESC Count & 6 Motors, 6 ESCs, 6 Props & No coaxial pairing remaining anywhere in codebase. & \textbf{$\checkmark$ CONSISTENT} \\
+        Propeller Sizing & 40'' $\times$ 13'' CF ($R = 0.508$ m) & Used in BEM, Propulsion, Mass Budget, and CAD generator. & \textbf{$\checkmark$ CONSISTENT} \\
+        Converged TOW & \textbf{34.575 kg} & Converged via 5-iteration loop across mass, power \& fuel solvers. & \textbf{$\checkmark$ CONSISTENT} \\
+        Hover Power Draw & \textbf{3,460.1 W} & Calculated using single-rotor momentum theory for 6 rotors. & \textbf{$\checkmark$ CONSISTENT} \\
+        Mission Fuel Burn & \textbf{1.859 kg} & Dynamic simulation of 30km out + 20m loiter + 30km back. & \textbf{$\checkmark$ CONSISTENT} \\
+        Fuel Carried & \textbf{2.323 kg} & Fuel carried equals $\text{Fuel\_Burn} / 0.8$ (exactly 20\% reserve margin). & \textbf{$\checkmark$ CONSISTENT} \\
+        Governing Structural Case & \textbf{Asymmetric Motor-Out} & Stress = 164.4 MPa (vs 137.0 MPa symmetric 2.5G case). & \textbf{$\checkmark$ CONSISTENT} \\
+        Structural Safety Factor & \textbf{SF = 4.87} & Evaluated against 800 MPa carbon fiber UTS (Passed $\ge 1.5$). & \textbf{$\checkmark$ CONSISTENT} \\
+        Center of Gravity (CG) & $[0.00, -0.00, -0.05]$ m & Dynamically calculated from 24 component mass locations. & \textbf{$\checkmark$ CONSISTENT} \\
+        Inertia Tensor ($I_{zz}$) & $11.670$ kg$\cdot$m$^2$ & Parallel axis theorem point-mass summation across 6 rotors. & \textbf{$\checkmark$ CONSISTENT} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\newpage
+\appendix
+\section{Tool Verification Screenshots}
+
+The following screenshot verifies that the electrical power and signal schematic was built and verified inside the native KiCad 9.0.9 schematic editor:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/kicad_viewport.png}
+    \caption{KiCad Eeschema editor canvas showing the complete power and signal schematic hierarchy.}
+\end{figure}
 
 \end{document}

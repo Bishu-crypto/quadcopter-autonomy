@@ -213,7 +213,7 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
             self.setFont("Helvetica", 9)
             self.setFillColor(colors.HexColor("#718096"))
             # Header
-            self.drawString(54, 11 * 72 - 36, "Heavy-Lift Gas-Electric Hybrid Hexacopter UAV — Final Technical Report")
+            self.drawString(54, 11 * 72 - 36, "IIT Madras — BS Electronic Systems | Heavy-Lift UAV Design Report")
             self.setStrokeColor(colors.HexColor("#e2e8f0"))
             self.setLineWidth(0.5)
             self.line(54, 11 * 72 - 42, 8.5 * 72 - 54, 11 * 72 - 42)
@@ -221,7 +221,7 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
             # Footer
             page_text = f"Page {self._pageNumber} of {page_count}"
             self.drawRightString(8.5 * 72 - 54, 36, page_text)
-            self.drawString(54, 36, "CONFIDENTIAL — Engineering Technical Submission")
+            self.drawString(54, 36, "GitHub: github.com/Bishu-crypto/quadcopter-autonomy | Vaibhav Parashari")
             self.line(54, 48, 8.5 * 72 - 54, 48)
             self.restoreState()
 
@@ -243,6 +243,14 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
     c_accent = colors.HexColor("#C53030")    # Crimson Accent
     c_light = colors.HexColor("#F7FAFC")     # Soft White Background
 
+    def make_link(text, path):
+        url = f"https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/{path}"
+        return f"<a href='{url}'><font color='#2B6CB0'><u>{text}</u></font></a>"
+
+    def make_dir_link(text, path):
+        url = f"https://github.com/Bishu-crypto/quadcopter-autonomy/tree/main/{path}"
+        return f"<a href='{url}'><font color='#2B6CB0'><u>{text}</u></font></a>"
+
     title_style = ParagraphStyle('DocTitle', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=22, leading=26, textColor=c_primary, spaceAfter=6)
     subtitle_style = ParagraphStyle('DocSubtitle', parent=styles['Normal'], fontName='Helvetica', fontSize=12, leading=16, textColor=c_secondary, spaceAfter=15)
     h1_style = ParagraphStyle('Heading1_Custom', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=14, leading=18, textColor=c_primary, spaceBefore=12, spaceAfter=8, keepWithNext=True)
@@ -251,6 +259,7 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
     bullet_style = ParagraphStyle('Bullet_Custom', parent=body_style, leftIndent=15, bulletIndent=5, spaceAfter=4)
     table_text_style = ParagraphStyle('TableText', parent=styles['Normal'], fontName='Helvetica', fontSize=8.5, leading=11, textColor=c_dark)
     table_header_style = ParagraphStyle('TableHeader', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=9, leading=12, textColor=colors.white)
+    caption_style = ParagraphStyle('AppendixCaption', parent=styles['Normal'], fontName='Helvetica', fontSize=7.5, leading=9.5, textColor=colors.HexColor("#4A5568"), spaceAfter=10)
 
     story = []
 
@@ -268,10 +277,10 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
     story.append(Spacer(1, 20))
     
     meta_data = [
-        [Paragraph("<b>Prepared by:</b> Flight Systems Division", table_text_style), Paragraph(f"<b>Converged TOW:</b> {converged_tow:.3f} kg", table_text_style)],
+        [Paragraph("<b>Prepared by:</b> Vaibhav Parashari<br/>IIT Madras — BS Electronic Systems", table_text_style), Paragraph(f"<b>Converged TOW:</b> {converged_tow:.3f} kg", table_text_style)],
         [Paragraph("<b>Configuration:</b> Single-Motor Hexacopter (6 Arms)", table_text_style), Paragraph("<b>Operational Range:</b> 30 km (Out & Back)", table_text_style)],
         [Paragraph("<b>Propeller Sizing:</b> 40\" x 13\" Carbon Fiber", table_text_style), Paragraph(f"<b>Fuel Mass:</b> {converged_fuel:.3f} kg (20% Reserve)", table_text_style)],
-        [Paragraph("<b>Date:</b> July 2026", table_text_style), Paragraph("<b>Status:</b> Final Submission Baseline", table_text_style)]
+        [Paragraph(f"<b>GitHub Repository:</b> {make_dir_link('github.com/Bishu-crypto/quadcopter-autonomy', 'projects/heavy-lift-uav')}", table_text_style), Paragraph("<b>Status:</b> Final Submission Baseline", table_text_style)]
     ]
     t_meta = Table(meta_data, colWidths=[250, 254])
     t_meta.setStyle(TableStyle([
@@ -289,15 +298,16 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
     toc_data = [
         [Paragraph("<b>Section</b>", table_header_style), Paragraph("<b>Page</b>", table_header_style)],
         [Paragraph("1. Executive Summary & Design Mission", table_text_style), Paragraph("3", table_text_style)],
-        [Paragraph("2. Mass Budget & TOW Convergence", table_text_style), Paragraph("4", table_text_style)],
-        [Paragraph("3. Operational Mission Energy Budget", table_text_style), Paragraph("5", table_text_style)],
-        [Paragraph("4. Structural & FEA Load Case Analysis", table_text_style), Paragraph("6", table_text_style)],
-        [Paragraph("5. CAD 3D Assembly & High-Fidelity Geometry Layout", table_text_style), Paragraph("7", table_text_style)],
-        [Paragraph("6. Avionics & KiCad Electrical Power Architecture", table_text_style), Paragraph("8", table_text_style)],
-        [Paragraph("7. Deliverables Requirements Traceability Matrix", table_text_style), Paragraph("9", table_text_style)],
-        [Paragraph("8. Final Self-Consistency Summary Table", table_text_style), Paragraph("9", table_text_style)],
-        [Paragraph("9. Risks, Assumptions, and Future Improvements", table_text_style), Paragraph("10", table_text_style)],
-        [Paragraph("10. Conclusion & Submission Readiness", table_text_style), Paragraph("10", table_text_style)]
+        [Paragraph("2. Mass Budget & TOW Convergence", table_text_style), Paragraph("5", table_text_style)],
+        [Paragraph("3. Operational Mission Energy Budget", table_text_style), Paragraph("6", table_text_style)],
+        [Paragraph("4. Structural & FEA Load Case Analysis", table_text_style), Paragraph("7", table_text_style)],
+        [Paragraph("5. CAD 3D Assembly & High-Fidelity Geometry Layout", table_text_style), Paragraph("8", table_text_style)],
+        [Paragraph("6. Avionics & KiCad Electrical Power Architecture", table_text_style), Paragraph("9", table_text_style)],
+        [Paragraph("7. Deliverables Requirements Traceability Matrix", table_text_style), Paragraph("10", table_text_style)],
+        [Paragraph("8. Final Self-Consistency Summary Table", table_text_style), Paragraph("10", table_text_style)],
+        [Paragraph("9. Risks, Assumptions, and Future Improvements", table_text_style), Paragraph("12", table_text_style)],
+        [Paragraph("10. Conclusion & Submission Readiness", table_text_style), Paragraph("12", table_text_style)],
+        [Paragraph("Appendix A: Tool Verification Screenshots", table_text_style), Paragraph("13", table_text_style)]
     ]
     
     story.append(Paragraph("Table of Contents", h1_style))
@@ -357,11 +367,21 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
     story.append(Paragraph("1.2 Propeller Aerodynamics & BEM Validation", h2_style))
     story.append(Paragraph(
         "To validate the thrust-to-power characteristics of the selected 40\" × 13\" propeller, "
-        "a Blade Element Momentum (BEM) simulation was executed. As shown in <b>Figure 1.1</b>, the total "
+        f"a Blade Element Momentum (BEM) simulation ({make_link('rotor_bem.py', 'projects/heavy-lift-uav/simulation/rotor_bem.py')}) "
+        "was executed. As shown in <b>Figure 1.1</b>, the total "
         "thrust scales quadratically with RPM, achieving the target hover thrust of 339.2 N (34.575 kg TOW) at "
         "1,850 RPM with 3,283 W of total mechanical power. The corresponding hover efficiency profile, shown in "
         "<b>Figure 1.2</b>, peaks at 8.1 g/W under hover load, providing the necessary efficiency to meet the long-endurance "
         "mission requirements.",
+        body_style
+    ))
+    story.append(Paragraph(
+        "During design validation, QBlade was identified as the correct Blade Element Momentum (BEM) simulation tool for "
+        "advanced propeller performance validation (since XFLR5 has no native rotor/propeller solver). The blade geometry "
+        f"definition files, including the AeroDyn polar table ({make_link('propeller_40x13_aerodyn.dat', 'projects/heavy-lift-uav/xflr5/propeller_40x13_aerodyn.dat')}) "
+        f"and the QBlade blade profile ({make_link('propeller_40x13_qblade.bld', 'projects/heavy-lift-uav/xflr5/propeller_40x13_qblade.bld')}), "
+        "were successfully prepared and are included in the submission. Due to environment setup and OS library compatibility constraints "
+        "on the submission day, the full interactive QBlade simulation sweep is omitted from this main report and presented as supplementary/future work.",
         body_style
     ))
     
@@ -383,7 +403,8 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
     story.append(Paragraph("2. Mass Budget & TOW Convergence", h1_style))
     story.append(Paragraph(
         "To ensure complete mathematical self-consistency across all solvers, a 5-step convergence loop "
-        "(<code>run_tow_convergence</code>) was implemented: <i>Mass → Required Thrust → Mechanical/Electrical Power → "
+        f"({make_link('mass_budget.py', 'projects/heavy-lift-uav/design_calculations/mass_budget.py')}) "
+        "was implemented: <i>Mass → Required Thrust → Mechanical/Electrical Power → "
         "Operational Mission Fuel Burn → Fuel Mass + 20% Reserve → Updated TOW</i>.",
         body_style
     ))
@@ -436,7 +457,8 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
     story.append(Paragraph("3. Operational Mission Energy Budget (30 km Range)", h1_style))
     story.append(Paragraph(
         "Rather than relying on theoretical maximum range at optimal speed, the mission energy budget was "
-        "validated by dynamic numerical integration of the exact operational mission profile: "
+        f"validated by dynamic numerical integration of the exact operational mission profile in "
+        f"{make_link('power_endurance.py', 'projects/heavy-lift-uav/design_calculations/power_endurance.py')}: "
         "<b>Phase 1: Vertical Climb</b> (100m at 2.5 m/s) → <b>Phase 2: Cruise Out</b> (30 km at 12 m/s) → "
         "<b>Phase 3: Loiter on-station</b> (20 min hover with 10kg payload) → <b>Phase 4: Cruise Back</b> (30 km at 12 m/s).",
         body_style
@@ -486,7 +508,8 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
     # ==================== 4. STRUCTURAL & FEA LOAD CASE ANALYSIS ====================
     story.append(Paragraph("4. Structural & FEA Load Case Analysis", h1_style))
     story.append(Paragraph(
-        f"Two independent load cases were evaluated for the {arm_length:.2f}m carbon fiber arms (OD 30mm, wall 2mm, UTS 800 MPa): "
+        f"Two independent load cases were evaluated for the {arm_length:.2f}m carbon fiber arms (OD 30mm, wall 2mm, UTS 800 MPa) "
+        f"in {make_link('structural_analysis.py', 'projects/heavy-lift-uav/design_calculations/structural_analysis.py')}: "
         "<b>Case 1: Symmetric 2.5G Limit Load</b> (all 6 arms operating equally) and <b>Case 2: Asymmetric Motor-Out Emergency Recovery</b> "
         "(1 motor fails, remaining active arms balance pitch/roll moment and support aircraft weight under 1.5G maneuver).",
         body_style
@@ -535,7 +558,8 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
     story.append(Paragraph("5. CAD 3D Assembly & High-Fidelity Geometry Layout", h1_style))
     story.append(Paragraph(
         "The complete UAV 3D assembly was programmatically built and exported as a parametric FreeCAD assembly macro "
-        "(<code>hexacopter_assembly.py</code>), an ISO STEP AP214 file (<code>hexacopter_assembly.step</code>), and a 3D Wavefront OBJ mesh. "
+        f"({make_link('hexacopter_assembly.py', 'projects/heavy-lift-uav/freecad/hexacopter_assembly.py')}), an ISO STEP AP214 file "
+        f"({make_link('hexacopter_assembly.step', 'projects/heavy-lift-uav/freecad/hexacopter_assembly.step')}), and a 3D Wavefront OBJ mesh. "
         "The high-fidelity CAD baseline explicitly models all structural, propulsion, avionics, and payload components with true geometric features: "
         "hollow 30mm carbon arm tubes, 4x M4 bolt patterns, two-tier brushless motor housings (stator base + rotor bell), 2-blade tapered 40-inch carbon propellers, "
         "a 300x200x150mm payload cargo bay (10 kg capacity), an EO camera with a 2-axis gimbal and forward lens barrel, a top-mounted telemetry antenna, and 450mm landing gear legs with skid foot pads. "
@@ -576,26 +600,20 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
         story.append(Image(isometric_fig_file, width=320, height=245))
         story.append(Paragraph("<i>Figure 5.4: Unannotated isometric view showing the clean geometric arrangement and structural symmetry of the 6-arm hexacopter frame.</i>", body_style))
         
-    story.append(PageBreak())
+    story.append(Spacer(1, 8))
 
     # ==================== 6. AVIONICS & KICAD ELECTRICAL POWER ARCHITECTURE ====================
     story.append(Paragraph("6. Avionics & KiCad Electrical Power Architecture", h1_style))
     story.append(Paragraph(
         "The electrical power distribution system is designed around a high-power 48V DC nominal bus supplied by a "
         "3.6 kW continuous gas-electric hybrid generator, supplemented by a 12S LiPo buffer battery. As shown in the "
-        "KiCad schematic block diagram in <b>Figure 6.1</b>, power is distributed to 6 ESC branches, with each branch "
+        f"KiCad schematic source ({make_link('power_and_signal_schematic.kicad_sch', 'projects/heavy-lift-uav/kicad/power_and_signal_schematic.kicad_sch')}) "
+        "and block diagram in <b>Figure A.1</b> (located in Appendix A), power is distributed to 6 ESC branches, with each branch "
         "carrying a peak current of 12.02 A under hover conditions. A dedicated 12V auxiliary buck regulator powers "
         "the payload camera and 2-axis gimbal, while a 5V BEC regulator supplies clean power to the Pixhawk 6X flight "
         "controller, GPS/RTK, and 915 MHz telemetry radio.",
         body_style
     ))
-    
-    schematic_fig = os.path.join(output_dir, "power_and_signal_schematic_page-1.png")
-    if os.path.exists(schematic_fig):
-        story.append(Image(schematic_fig, width=450, height=245))
-        story.append(Paragraph("<i>Figure 6.1: KiCad electrical distribution schematic showing the 48V DC bus routing from the 3.6 kW hybrid generator and battery buffer to the 6 ESCs and avionics.</i>", body_style))
-        
-    story.append(PageBreak())
 
     # ==================== 7. REQUIREMENTS TRACEABILITY MATRIX ====================
     story.append(Paragraph("7. Deliverables Requirements Traceability Matrix", h1_style))
@@ -635,8 +653,10 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
     story.append(Paragraph("8. Final Self-Consistency Summary Table", h1_style))
     story.append(Paragraph(
         "To guarantee design rigor for submission, all key parameters were audited across all underlying python solvers "
-        "(<code>mass_budget.py</code>, <code>propulsion.py</code>, <code>power_endurance.py</code>, <code>structural_analysis.py</code>, "
-        "<code>rotor_bem.py</code>, <code>frame_fea.py</code>, and <code>generate_cad_model.py</code>):",
+        f"({make_link('mass_budget.py', 'projects/heavy-lift-uav/design_calculations/mass_budget.py')}, "
+        f"{make_link('rotor_bem.py', 'projects/heavy-lift-uav/simulation/rotor_bem.py')}, "
+        f"{make_link('power_endurance.py', 'projects/heavy-lift-uav/design_calculations/power_endurance.py')}, and "
+        f"{make_link('structural_analysis.py', 'projects/heavy-lift-uav/design_calculations/structural_analysis.py')}):",
         body_style
     ))
     
@@ -707,6 +727,22 @@ def generate_pdf_report(output_path="projects/heavy-lift-uav/reports/heavy_lift_
         "fully satisfies all assignment constraints.",
         body_style
     ))
+
+    # ==================== APPENDIX A. TOOL VERIFICATION SCREENSHOTS ====================
+    story.append(PageBreak())
+    story.append(Paragraph("Appendix A: Tool Verification Screenshots", h1_style))
+    story.append(Paragraph(
+        "The following screenshot verifies that the electrical power and signal schematic was built and "
+        "verified inside the native KiCad 9.0.9 schematic editor:",
+        body_style
+    ))
+    story.append(Spacer(1, 10))
+    
+    kicad_img_file = "projects/heavy-lift-uav/reports/figures/kicad_viewport.png"
+    if os.path.exists(kicad_img_file):
+        story.append(Image(kicad_img_file, width=480, height=339))
+        story.append(Spacer(1, 6))
+        story.append(Paragraph("<i>Figure A.1: KiCad Eeschema editor canvas showing the complete power and signal schematic hierarchy.</i>", body_style))
 
     doc.build(story, canvasmaker=NumberedCanvas)
     print(f"PDF report successfully compiled at: {output_path}")

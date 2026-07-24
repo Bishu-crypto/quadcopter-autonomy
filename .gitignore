@@ -58,3 +58,11 @@ _autosave-*
 *.FCStd.backup
 *.FCStdLock
 *.FCBackup
+
+# Private Project Portfolio / Interview Files
+projects/heavy-lift-uav/DESIGN_LOCK.md
+projects/heavy-lift-uav/CALCULATION_WALKTHROUGH.md
+projects/heavy-lift-uav/CALCULATION_WALKTHROUGH.pdf
+projects/heavy-lift-uav/INTERVIEW_PREP.md
+projects/heavy-lift-uav/REPORT_REVIEW_CHECKLIST.md
+projects/heavy-lift-uav/convert_walkthrough_to_pdf.py
