@@ -10,6 +10,7 @@ log/
 *.pyc
 __pycache__/
 .pytest_cache/
+**/__pycache__/
 
 # Virtual Environments
 .venv/
@@ -43,3 +44,17 @@ Thumbs.db
 *.out
 *.toc
 
+# KiCad backup/lock files
+*-bak
+*.bak
+*-bak.kicad_sch
+*-backups/
+_autosave-*
+*.lck
+*.lock
+
+# FreeCAD backup/lock files
+*.FCStd?
+*.FCStd.backup
+*.FCStdLock
+*.FCBackup

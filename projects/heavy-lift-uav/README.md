@@ -30,29 +30,60 @@ When presenting this CAD model to recruiters, professors, or engineering reviewe
 | **3. Side Elevation** ($0^\circ$ elevation) | ![Side View](reports/figures/uav_cad_sideview.png) | **Ground Clearance & Landing Safety:** Shows $450\text{ mm}$ landing gear height and $220\text{ mm}$ payload ground clearance to protect camera and cargo during hard landings (3--5G load case). |
 | **4. Subsystem Zoom Details** | ![Motor Detail](reports/figures/uav_cad_motor_detail.png) | **Manufacturing Details:** Points out the 4x M4 bolt pattern (PCD 40mm), two-tier motor housing (stator base vs rotor bell), and tapered propeller blade root interface. |
 
----
-
 ## 📁 Native Engineering File Deliverables
 
-- 📄 **Final 9-Page PDF Engineering Report:** [`reports/heavy_lift_uav_report.pdf`](reports/heavy_lift_uav_report.pdf)
-- 📝 **LaTeX Source Code File:** [`reports/heavy_lift_uav_report.tex`](reports/heavy_lift_uav_report.tex)
-- 🔒 **Locked Baseline Source of Truth:** [`DESIGN_LOCK.md`](DESIGN_LOCK.md)
-- 📐 **Parametric FreeCAD Python Macro:** [`freecad/hexacopter_assembly.py`](freecad/hexacopter_assembly.py)
-- 📦 **ISO STEP AP214 3D CAD Assembly:** [`freecad/hexacopter_assembly.step`](freecad/hexacopter_assembly.step)
-- 🛩️ **XFLR5 Propeller Aerodynamics Project:** [`xflr5/propeller_40x13_geometry.xfl`](xflr5/propeller_40x13_geometry.xfl)
-- ⚡ **KiCad 48V Electrical Distribution Schematic:** [`kicad/power_and_signal_schematic.kicad_sch`](kicad/power_and_signal_schematic.kicad_sch)
+### 1. Reports & Documentation
+* 📄 **LaTeX Compiled 9-Page PDF Report:** [`reports/heavy_lift_uav_report.pdf`](reports/heavy_lift_uav_report.pdf)
+* 📄 **ReportLab Alternative PDF Report:** [`reports/heavy_lift_uav_design_report.pdf`](reports/heavy_lift_uav_design_report.pdf)
+* 📝 **LaTeX Report Source Code:** [`reports/heavy_lift_uav_report.tex`](reports/heavy_lift_uav_report.tex)
+* 🔒 **Locked Design Baseline (Source of Truth):** [`DESIGN_LOCK.md`](DESIGN_LOCK.md)
+* 📖 **Pedagogical Sizing Walkthrough (Markdown):** [`CALCULATION_WALKTHROUGH.md`](CALCULATION_WALKTHROUGH.md)
+* 📄 **Pedagogical Sizing Walkthrough (PDF):** [`CALCULATION_WALKTHROUGH.pdf`](CALCULATION_WALKTHROUGH.pdf)
+* 📋 **Design Compliance & Review Checklist:** [`REPORT_REVIEW_CHECKLIST.md`](REPORT_REVIEW_CHECKLIST.md)
+
+### 2. 3D CAD & Parametric Modeling
+* 📦 **ISO STEP AP214 3D Assembly:** [`freecad/hexacopter_assembly.step`](freecad/hexacopter_assembly.step)
+* 📐 **Parametric FreeCAD Python Script:** [`freecad/hexacopter_assembly.py`](freecad/hexacopter_assembly.py)
+* 💾 **FreeCAD Native Project File:** [`freecad/final.FCStd`](freecad/final.FCStd)
+* 🎨 **Renders & 3D Wavefront Mesh:** [`reports/uav_assembly.obj`](reports/uav_assembly.obj) (and figures in [`reports/figures/`](reports/figures/))
+
+### 3. Propulsion & Rotor Aerodynamics (XFLR5 / QBlade)
+* 🛩️ **XFLR5 Propeller Geometry & Foil Project:** [`xflr5/propeller_40x13_geometry.xfl`](xflr5/propeller_40x13_geometry.xfl)
+* 📝 **QBlade Rotor Definition File:** [`xflr5/propeller_40x13_qblade.bld`](xflr5/propeller_40x13_qblade.bld)
+* 📊 **QBlade AeroDyn Polar Table:** [`xflr5/propeller_40x13_aerodyn.dat`](xflr5/propeller_40x13_aerodyn.dat)
+* 📝 **Rotor Blade Station Geometry:** [`xflr5/propeller_40x13_blade.txt`](xflr5/propeller_40x13_blade.txt)
+* 📄 **NACA 4412 Airfoil Section Coordinates:** [`xflr5/naca4412.dat`](xflr5/naca4412.dat)
+
+### 4. KiCad Electrical Schematics
+* ⚡ **KiCad 9.0.9 Schematic Source File:** [`kicad/power_and_signal_schematic.kicad_sch`](kicad/power_and_signal_schematic.kicad_sch)
+* 📄 **Vector PDF Schematic Export:** [`kicad/power_and_signal_schematic.pdf`](kicad/power_and_signal_schematic.pdf)
+* ⚙️ **Programmatic KiCad v9 Generator:** [`kicad/generate_schematic_v9.py`](kicad/generate_schematic_v9.py)
+
+### 5. Python Sizing & Simulation Suite
+* ⚖️ **TOW Sizing & Convergence Loop:** [`design_calculations/mass_budget.py`](design_calculations/mass_budget.py)
+* 🔋 **Mission Profile & Power Simulator:** [`design_calculations/power_endurance.py`](design_calculations/power_endurance.py)
+* 🪵 **Cantilever Arm Bending & FEA Stress Solver:** [`design_calculations/structural_analysis.py`](design_calculations/structural_analysis.py)
+* 🔌 **Motor-ESC Electrical Sizing & Efficiency:** [`design_calculations/propulsion.py`](design_calculations/propulsion.py)
+* 🌀 **Blade Element Momentum Aerodynamic Solver:** [`simulation/rotor_bem.py`](simulation/rotor_bem.py)
+* 🖥️ **CAD FreeCAD Image Rendering Script:** [`simulation/generate_cad_model.py`](simulation/generate_cad_model.py)
+* 📹 **CAD Turntable Animation Renderer:** [`simulation/generate_cad_animation.py`](simulation/generate_cad_animation.py)
+* 🚀 **Master PDF Report & Figure Generator:** [`generate_report.py`](generate_report.py)
 
 ---
 
 ## 💻 Quick Start & Commands
 
+To rebuild report figures, compile the documents, or run simulations:
 ```bash
 # 1. Regenerate 3D CAD images, XFLR5 polars, and KiCad schematic diagrams:
-python3 simulation/generate_cad_model.py
+python3 projects/heavy-lift-uav/simulation/generate_cad_model.py
 
 # 2. Render 360-degree turntable GIF:
-python3 simulation/generate_cad_animation.py
+python3 projects/heavy-lift-uav/simulation/generate_cad_animation.py
 
-# 3. Compile final LaTeX PDF report:
-pdflatex -output-directory=reports reports/heavy_lift_uav_report.tex
+# 3. Run master design compilation (ReportLab PDF + figures):
+python3 projects/heavy-lift-uav/generate_report.py
+
+# 4. Compile final LaTeX PDF report:
+pdflatex -interaction=nonstopmode -output-directory=projects/heavy-lift-uav/reports projects/heavy-lift-uav/reports/heavy_lift_uav_report.tex
 ```

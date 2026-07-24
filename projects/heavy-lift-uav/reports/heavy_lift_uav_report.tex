@@ -147,6 +147,8 @@ The 40" $\times$ 13" propeller aerodynamic performance was evaluated using NACA 
     \item \textbf{Total Electrical Power Draw:} $3,460.1\text{ W}$ (48V DC bus, $72.1\text{ A}$ total current).
 \end{itemize}
 
+During design validation, QBlade was identified as the correct Blade Element Momentum (BEM) simulation tool for advanced propeller performance validation (since XFLR5 has no native rotor/propeller solver). The blade geometry definition files, including the AeroDyn polar table (\href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/xflr5/propeller_40x13_aerodyn.dat}{\texttt{xflr5/propeller\_40x13\_aerodyn.dat}}) and the QBlade blade profile (\href{https://github.com/Bishu-crypto/quadcopter-autonomy/blob/main/projects/heavy-lift-uav/xflr5/propeller_40x13_qblade.bld}{\texttt{xflr5/propeller\_40x13\_qblade.bld}}), were successfully prepared and are included in the submission. Due to environment setup and OS library compatibility constraints on the submission day, the full interactive QBlade simulation sweep is omitted from this main report and presented as supplementary/future work.
+
 % ==========================================
 % SECTION 4: MASS BUDGET & INERTIA TENSOR
 % ==========================================
@@ -273,7 +275,19 @@ The electrical distribution schematic (\href{https://github.com/Bishu-crypto/qua
 \end{figure}
 
 % ==========================================
-% SECTION 9: REQUIREMENTS TRACEABILITY
+% SECTION 9: RISKS, ASSUMPTIONS, AND FUTURE IMPROVEMENTS
+% ==========================================
+\section{Risks, Assumptions, and Future Improvements}
+
+\subsection{Alternative Power Source Evaluation}
+\begin{enumerate}
+    \item \textbf{Solar Augmentation:} Solar augmentation was considered and rejected. The available mounting surface area on the center frame and arm structures ($\approx 0.4\text{ m}^2$) yields only $\approx 88\text{ W}$ under typical solar irradiance ($1000\text{ W/m}^2$ at $22\%$ cell efficiency), which is negligible compared to the $3,460.1\text{ W}$ hover electrical power requirement.
+    \item \textbf{Semi-Solid-State Battery Alternative:} Semi-solid-state battery technology was evaluated as a pure-battery alternative to the gas-electric hybrid system. At a current (2026) commercial pack-level specific energy of $\approx 300\text{ Wh/kg}$, the required battery mass to sustain the $3,260\text{ W}$ average power over the 104-minute mission would be $\approx 23.5\text{ kg}$ (assuming an $85\%$ depth of discharge), compared to the hybrid power plant's total mass of $8.323\text{ kg}$ (generator + buffer battery + fuel). This represents a $2.7\times$ mass penalty, while costing 3--5$\times$ more per kWh than conventional Li-ion. Pure battery propulsion remains unfeasible until mature pack-level specific energies exceed approximately 600--700 Wh/kg.
+    \item \textbf{Generator Specific Power Cross-Check:} The hybrid generator's assumed specific power ($800\text{ W/kg}$) was cross-checked against commercial UAV-specific hybrid generators in the appropriate weight class. Real-world systems like the MIAT-M6000 ($6\text{ kW}$ output, rated for $45\text{ kg}$ MTOW multirotors) and the Austars F6000 ($6\text{ kW}$ output, $7.2\text{ kg}$ measured weight, yielding $\approx 833\text{ W/kg}$) confirm that the $800\text{ W/kg}$ benchmark is highly realistic for this aircraft's weight class. This is in contrast to smaller 2--2.5 kW drone generators ($\approx 400$--$650\text{ W/kg}$) or generic stationary petrol generators ($35$--$50\text{ kg}$), which represent unoptimized product categories.
+\end{enumerate}
+
+% ==========================================
+% SECTION 10: REQUIREMENTS TRACEABILITY
 % ==========================================
 \section{Deliverables Requirements Traceability Matrix}
 

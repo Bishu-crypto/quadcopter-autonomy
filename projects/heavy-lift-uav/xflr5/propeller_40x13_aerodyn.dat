@@ -1,0 +1,15 @@
+AeroDyn Blade Input File
+Compatible with AeroDyn v13
+NBlade        10   Number of blade nodes
+Blade geometry table:
+RNodes   Aerocent  Twist    Chord    NFoil  PrnElm
+0.0762   0.25      25.80    0.0450   1      NOPRINT
+0.1016   0.25      21.50    0.0490   1      NOPRINT
+0.1524   0.25      16.20    0.0540   1      NOPRINT
+0.2032   0.25      13.50    0.0550   1      NOPRINT
+0.2540   0.25      11.70    0.0530   1      NOPRINT
+0.3048   0.25      10.10    0.0490   1      NOPRINT
+0.3556   0.25      8.80     0.0440   1      NOPRINT
+0.4064   0.25      7.60     0.0380   1      NOPRINT
+0.4572   0.25      6.60     0.0320   1      NOPRINT
+0.5080   0.25      5.80     0.0250   1      NOPRINT

@@ -1,3 +1,4 @@
+#power endurance.py
 import numpy as np
 from propulsion import Propeller, Motor
 

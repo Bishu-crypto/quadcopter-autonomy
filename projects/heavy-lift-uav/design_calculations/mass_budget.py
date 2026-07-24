@@ -1,3 +1,4 @@
+#mass_budeget.py
 import numpy as np
 
 class Component:

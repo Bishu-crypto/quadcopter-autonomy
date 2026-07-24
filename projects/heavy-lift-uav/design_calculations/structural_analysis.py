@@ -1,3 +1,4 @@
+#structural_analysis.py
 import numpy as np
 
 class CarbonFiberArm:
