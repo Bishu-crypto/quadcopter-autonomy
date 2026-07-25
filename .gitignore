@@ -66,3 +66,19 @@ projects/heavy-lift-uav/CALCULATION_WALKTHROUGH.pdf
 projects/heavy-lift-uav/INTERVIEW_PREP.md
 projects/heavy-lift-uav/REPORT_REVIEW_CHECKLIST.md
 projects/heavy-lift-uav/convert_walkthrough_to_pdf.py
+projects/heavy-lift-uav/interview_prep/
+
+# KiCad & FreeCAD Generation Scripts (Only kept locally)
+projects/heavy-lift-uav/kicad/compare.py
+projects/heavy-lift-uav/kicad/generate_schematic.py
+projects/heavy-lift-uav/kicad/generate_schematic_v9.py
+projects/heavy-lift-uav/freecad/generate_step.py
+projects/heavy-lift-uav/freecad/hexacopter_assembly.py
+projects/heavy-lift-uav/simulation/generate_cad_model.py
+projects/heavy-lift-uav/simulation/generate_cad_animation.py
+
+# Temporary & Redundant Verification Files
+pdf_text.txt
+projects/heavy-lift-uav/portfolio_showcase.html
+projects/heavy-lift-uav/PORTFOLIO_SHOWCASE.md
+projects/heavy-lift-uav/reports/HeavyLiftUAVdesign.pdf
