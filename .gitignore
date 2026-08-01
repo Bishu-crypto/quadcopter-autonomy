@@ -76,9 +76,12 @@ projects/heavy-lift-uav/freecad/generate_step.py
 projects/heavy-lift-uav/freecad/hexacopter_assembly.py
 projects/heavy-lift-uav/simulation/generate_cad_model.py
 projects/heavy-lift-uav/simulation/generate_cad_animation.py
+projects/heavy-lift-uav/generate_report.py
 
 # Temporary & Redundant Verification Files
 pdf_text.txt
 projects/heavy-lift-uav/portfolio_showcase.html
 projects/heavy-lift-uav/PORTFOLIO_SHOWCASE.md
 projects/heavy-lift-uav/reports/HeavyLiftUAVdesign.pdf
+projects/heavy-lift-uav/scratch/
+projects/heavy-lift-uav/freecad/Heavy lift Multirotor.FCMacro

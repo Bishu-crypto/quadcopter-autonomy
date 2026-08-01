@@ -109,48 +109,44 @@ class PowerEndurance:
         
         return p_elec_propulsion + p_elec_avionics
 
-    def simulate_flight(self, initial_mass_kg, fuel_mass_kg, speed_mps, dt=60.0):
+    def simulate_flight(self, initial_mass_kg, battery_mass_kg=0.0, speed_mps=12.0, energy_density_wh_kg=520.0, dt=60.0, fuel_mass_kg=None):
         """
-        Simulates the flight until fuel runs out, integrating fuel burn dynamically.
-        As fuel burns, total mass decreases, requiring less thrust and power.
+        Simulates the flight until battery is depleted, integrating energy draw.
+        For battery-electric, total mass is constant throughout flight.
         """
+        if fuel_mass_kg is not None and battery_mass_kg == 0.0:
+            battery_mass_kg = fuel_mass_kg
+            
         time = 0.0
-        current_fuel = fuel_mass_kg
+        current_energy_wh = battery_mass_kg * energy_density_wh_kg
         current_mass = initial_mass_kg
         
         history = {
             "time_min": [],
             "mass_kg": [],
             "power_w": [],
-            "fuel_kg": [],
+            "battery_wh": [],
             "distance_km": []
         }
         
-        # Reserve battery capacity (buffer) allows 5 minutes of emergency flight
-        # Generator stops when fuel is empty
-        while current_fuel > 0:
+        while current_energy_wh > 0:
             power = self.calculate_total_power(current_mass, speed_mps)
+            consumed_wh = (power * dt) / 3600.0
             
-            # Fuel burn rate (kg/s) = SFC (kg/J) * Power (W)
-            burn_rate = self.sfc * power
-            
-            # Update state
-            consumed = burn_rate * dt
-            if consumed > current_fuel:
-                dt_actual = (current_fuel / burn_rate)
-                current_fuel = 0.0
+            if consumed_wh > current_energy_wh:
+                dt_actual = (current_energy_wh / (power / 3600.0))
+                current_energy_wh = 0.0
                 time += dt_actual
             else:
-                current_fuel -= consumed
+                current_energy_wh -= consumed_wh
                 time += dt
                 
-            current_mass = initial_mass_kg - (fuel_mass_kg - current_fuel)
             distance = speed_mps * time / 1000.0
             
             history["time_min"].append(time / 60.0)
             history["mass_kg"].append(current_mass)
             history["power_w"].append(power)
-            history["fuel_kg"].append(current_fuel)
+            history["battery_wh"].append(current_energy_wh)
             history["distance_km"].append(distance)
             
         endurance_min = time / 60.0
@@ -158,23 +154,25 @@ class PowerEndurance:
         
         return endurance_min, total_distance, history
 
-    def simulate_operational_mission(self, initial_mass_kg, fuel_mass_kg, cruise_speed_mps=12.0, climb_rate_mps=2.5, climb_alt_m=100.0, loiter_time_s=1200.0, target_range_km=30.0, dt=1.0):
+    def simulate_operational_mission(self, initial_mass_kg, battery_mass_kg=0.0, cruise_speed_mps=12.0, climb_rate_mps=2.5, climb_alt_m=100.0, loiter_time_s=1200.0, target_range_km=30.0, energy_density_wh_kg=520.0, dt=1.0, fuel_mass_kg=None):
         """
         Simulates the 30 km operational mission profile:
         1. Vertical Climb to altitude (climb_alt_m)
         2. Cruise Out (target_range_km)
         3. Loiter / Hover on station (loiter_time_s)
         4. Cruise Back (target_range_km)
-        Integrates dynamic fuel burn across all phases.
+        Integrates cumulative energy consumption at constant takeoff mass.
         """
+        if fuel_mass_kg is not None and battery_mass_kg == 0.0:
+            battery_mass_kg = fuel_mass_kg
+            
         current_mass = initial_mass_kg
-        current_fuel = fuel_mass_kg
         total_time_s = 0.0
         
-        fuel_climb = 0.0
-        fuel_cruise_out = 0.0
-        fuel_loiter = 0.0
-        fuel_cruise_back = 0.0
+        energy_climb_j = 0.0
+        energy_cruise_out_j = 0.0
+        energy_loiter_j = 0.0
+        energy_cruise_back_j = 0.0
         
         # Phase 1: Climb
         climb_duration = climb_alt_m / climb_rate_mps
@@ -182,10 +180,7 @@ class PowerEndurance:
         while t < climb_duration:
             step = min(dt, climb_duration - t)
             power = self.calculate_total_power(current_mass, speed_mps=0.0, V_climb=climb_rate_mps)
-            burn = self.sfc * power * step
-            fuel_climb += burn
-            current_fuel -= burn
-            current_mass -= burn
+            energy_climb_j += power * step
             t += step
             total_time_s += step
             
@@ -195,10 +190,7 @@ class PowerEndurance:
         while dist_out < target_dist_m:
             step = dt
             power = self.calculate_total_power(current_mass, speed_mps=cruise_speed_mps, V_climb=0.0)
-            burn = self.sfc * power * step
-            fuel_cruise_out += burn
-            current_fuel -= burn
-            current_mass -= burn
+            energy_cruise_out_j += power * step
             dist_out += cruise_speed_mps * step
             total_time_s += step
             
@@ -207,10 +199,7 @@ class PowerEndurance:
         while t < loiter_time_s:
             step = min(dt, loiter_time_s - t)
             power = self.calculate_total_power(current_mass, speed_mps=0.0, V_climb=0.0)
-            burn = self.sfc * power * step
-            fuel_loiter += burn
-            current_fuel -= burn
-            current_mass -= burn
+            energy_loiter_j += power * step
             t += step
             total_time_s += step
             
@@ -219,32 +208,45 @@ class PowerEndurance:
         while dist_back < target_dist_m:
             step = dt
             power = self.calculate_total_power(current_mass, speed_mps=cruise_speed_mps, V_climb=0.0)
-            burn = self.sfc * power * step
-            fuel_cruise_back += burn
-            current_fuel -= burn
-            current_mass -= burn
+            energy_cruise_back_j += power * step
             dist_back += cruise_speed_mps * step
             total_time_s += step
             
-        total_fuel_consumed = fuel_climb + fuel_cruise_out + fuel_loiter + fuel_cruise_back
+        total_energy_consumed_j = energy_climb_j + energy_cruise_out_j + energy_loiter_j + energy_cruise_back_j
+        total_energy_consumed_wh = total_energy_consumed_j / 3600.0
         
         # 20% Reserve Margin requirement:
-        # Total fuel capacity required = total_fuel_consumed / 0.8
-        required_fuel_with_reserve = total_fuel_consumed / 0.8
-        is_sufficient = fuel_mass_kg >= required_fuel_with_reserve
+        # Total battery energy capacity required = total_energy_consumed_wh / 0.8
+        required_capacity_with_reserve_wh = total_energy_consumed_wh / 0.8
+        required_battery_mass_kg = required_capacity_with_reserve_wh / energy_density_wh_kg
         
-        return {
+        is_sufficient = battery_mass_kg >= required_battery_mass_kg
+        
+        res = {
             "total_time_min": total_time_s / 60.0,
-            "fuel_climb_kg": fuel_climb,
-            "fuel_cruise_out_kg": fuel_cruise_out,
-            "fuel_loiter_kg": fuel_loiter,
-            "fuel_cruise_back_kg": fuel_cruise_back,
-            "total_fuel_consumed_kg": total_fuel_consumed,
-            "required_fuel_with_reserve_kg": required_fuel_with_reserve,
-            "carried_fuel_kg": fuel_mass_kg,
-            "reserve_margin_actual_percent": ((fuel_mass_kg - total_fuel_consumed) / fuel_mass_kg) * 100.0 if fuel_mass_kg > 0 else 0.0,
+            
+            "energy_climb_wh": energy_climb_j / 3600.0,
+            "energy_cruise_out_wh": energy_cruise_out_j / 3600.0,
+            "energy_loiter_wh": energy_loiter_j / 3600.0,
+            "energy_cruise_back_wh": energy_cruise_back_j / 3600.0,
+            "total_energy_consumed_wh": total_energy_consumed_wh,
+            "required_capacity_with_reserve_wh": required_capacity_with_reserve_wh,
+            "required_battery_mass_kg": required_battery_mass_kg,
+            "carried_battery_mass_kg": battery_mass_kg,
+            
+            # Legacy fuel aliases for safety
+            "fuel_climb_kg": (energy_climb_j / 3600.0) / energy_density_wh_kg,
+            "fuel_cruise_out_kg": (energy_cruise_out_j / 3600.0) / energy_density_wh_kg,
+            "fuel_loiter_kg": (energy_loiter_j / 3600.0) / energy_density_wh_kg,
+            "fuel_cruise_back_kg": (energy_cruise_back_j / 3600.0) / energy_density_wh_kg,
+            "total_fuel_consumed_kg": total_energy_consumed_wh / energy_density_wh_kg,
+            "required_fuel_with_reserve_kg": required_battery_mass_kg,
+            "carried_fuel_kg": battery_mass_kg,
+            
+            "reserve_margin_actual_percent": ((battery_mass_kg - required_battery_mass_kg) / battery_mass_kg) * 100.0 if battery_mass_kg > 0 else 0.0,
             "is_sufficient": is_sufficient
         }
+        return res
 
 if __name__ == "__main__":
     from mass_budget import build_default_uav_mass_budget

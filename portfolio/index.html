@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quadcopter Autonomy & Heavy-Lift UAV Design Portfolio. Sizing solvers, structural dynamics, Campbell diagrams, and avionics architectures.">
+    <title>Quadcopter Autonomy Lab | UAV Sizing & Optimization Portfolio</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Dynamic Particles Background -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Navigation Header -->
+    <header>
+        <div class="nav-container">
+            <div class="logo">
+                ⚡ QUAD_AUTONOMY<span>.LAB</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#hero" class="active">Home</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#calculator">Sizing Solver</a></li>
+                    <li><a href="#lab-notes">Lab Notes</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-badge">Aerospace Optimization & Autonomy</div>
+        <h1>First-Principles Sizing & Multi-Physics UAV Optimization</h1>
+        <p>A portfolio showcase of design iterations, structural FEA, modal analysis, and avionics architectures for autonomous aerial systems.</p>
+        <div class="hero-ctas">
+            <a href="#projects" class="btn btn-primary">Explore Engineering Projects</a>
+            <a href="#calculator" class="btn btn-secondary">Interactive Sizing Solver</a>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main>
+
+        <!-- Projects Grid Section -->
+        <section id="projects">
+            <div class="section-header">
+                <h2>Key Engineering Projects</h2>
+                <p>Rigorous, self-consistent design packages spanning fluid dynamics, structural FEA, and battery-electric power plants.</p>
+            </div>
+            
+            <div class="projects-grid">
+                <!-- Project Card 1 -->
+                <div class="project-card">
+                    <div class="card-icon">🛸</div>
+                    <h3>Heavy-Lift Hexacopter Sizing</h3>
+                    <p>Designed a battery-electric heavy-lift hexacopter optimized for a 10.0 kg payload and 104-minute mission radius. Sized dynamically via TOW convergence.</p>
+                    <div class="project-badges">
+                        <span class="badge badge-cyan">FreeCAD CAD</span>
+                        <span class="badge badge-blue">TOW Solver</span>
+                        <span class="badge badge-cyan">STEP Assembly</span>
+                    </div>
+                    <a href="#heavy-lift-detail" class="btn-text">View Design Detail &rarr;</a>
+                </div>
+
+                <!-- Project Card 2 -->
+                <div class="project-card">
+                    <div class="card-icon">🌀</div>
+                    <h3>Blade Element Momentum Solver</h3>
+                    <p>Built a sectional lift and drag coefficient solver integrating NACA 4412 airfoil database. Validated propeller thrust-to-power curves at 0.72 FoM.</p>
+                    <div class="project-badges">
+                        <span class="badge badge-blue">Aerodynamics</span>
+                        <span class="badge">NACA 4412</span>
+                        <span class="badge badge-cyan">Python Engine</span>
+                    </div>
+                    <a href="#bem-detail" class="btn-text">View Aero Curves &rarr;</a>
+                </div>
+
+                <!-- Project Card 3 -->
+                <div class="project-card">
+                    <div class="card-icon">⚡</div>
+                    <h3>Avionics & Wire Sizing</h3>
+                    <p>Developed a transient Joule heating thermal solver for wiring boards and generated KiCad schematic layers for a 12S battery-electric bus.</p>
+                    <div class="project-badges">
+                        <span class="badge badge-cyan">KiCad</span>
+                        <span class="badge badge-blue">Joule Sizing</span>
+                        <span class="badge">Thermal FEA</span>
+                    </div>
+                    <a href="#avionics-detail" class="btn-text">View Schematics &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+        <hr>
+
+        <!-- Sizing Calculator Section -->
+        <section id="calculator">
+            <div class="section-header">
+                <h2>Interactive UAV Sizing Solver</h2>
+                <p>Run a live, multi-physics convergence loop in your browser. Slide parameters to dynamically recalculate Take-Off Weight (TOW), battery mass, and loiter power.</p>
+            </div>
+
+            <div class="calc-container">
+                <!-- Slider Inputs -->
+                <div class="calc-inputs">
+                    <!-- Input 1 -->
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span>Payload Cargo Weight</span>
+                            <span id="val-payload">10.0</span>
+                        </div>
+                        <input type="range" id="slider-payload" min="2" max="25" step="0.5" value="10">
+                    </div>
+                    <!-- Input 2 -->
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span>Propeller Diameter</span>
+                            <span id="val-prop">40</span>
+                        </div>
+                        <input type="range" id="slider-prop" min="20" max="50" step="2" value="40">
+                    </div>
+                    <!-- Input 3 -->
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span>Battery Energy Density (Wh/kg)</span>
+                            <span id="val-density">520</span>
+                        </div>
+                        <input type="range" id="slider-density" min="200" max="600" step="10" value="520">
+                    </div>
+                    <!-- Input 4 -->
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span>Target Mission Range (Radius)</span>
+                            <span id="val-range">30</span>
+                        </div>
+                        <input type="range" id="slider-range" min="10" max="100" step="5" value="30">
+                    </div>
+                </div>
+
+                <!-- Calculator Results Display -->
+                <div class="calc-results">
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <span class="result-label">Take-Off Weight</span>
+                            <div class="result-val" id="res-tow" data-value="0">0.00<span> kg</span></div>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Battery Weight</span>
+                            <div class="result-val" id="res-battery" data-value="0">0.00<span> kg</span></div>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Total Hover Power</span>
+                            <div class="result-val" id="res-power" data-value="0">0<span> W</span></div>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Flight Endurance</span>
+                            <div class="result-val" id="res-time" data-value="0">0.0<span> min</span></div>
+                        </div>
+                    </div>
+                    <div class="calc-note">
+                        *Note: Sizing loop converges in 8 iterations. Estimates structural scaling using Euler-Bernoulli bending constraints and aerodynamics via actuator disk theory.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr>
+
+        <!-- Detailed Project Showcases -->
+        <section class="showcase-detail" id="project-details">
+            
+            <!-- Detail 1: Heavy Lift Hexacopter -->
+            <div class="detail-block" id="heavy-lift-detail">
+                <div class="detail-layout">
+                    <div class="detail-txt">
+                        <h3>Heavy-Lift Battery-Electric Hexacopter</h3>
+                        <p>A high-fidelity parametric CAD model built directly via a FreeCAD python macro to verify component spacing. Moving the arm tubes to start at 170 mm and the clamp mounts to 180 mm guarantees a collision-free clearance margin of 22.22 mm away from the central semi-solid-state battery pack ($220 \times 220 \times 224\text{ mm}$, $6,307.2\text{ Wh}$ capacity).</p>
+                        <p>Under governing asymmetric motor-out peak loads, the arms resist bending with a safety factor of 4.51 against the carbon fiber's 800 MPa UTS.</p>
+                        
+                        <div class="detail-stats">
+                            <div class="stat-box">
+                                <div class="stat-num">37.29 kg</div>
+                                <div class="stat-lbl">Converged TOW</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-num">4.51</div>
+                                <div class="stat-lbl">Structural SF (Governing)</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-num">22.22 mm</div>
+                                <div class="stat-lbl">Min Battery Clearance</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-num">8.79 Hz</div>
+                                <div class="stat-lbl">1st Bending Freq</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detail-media">
+                        <!-- 3D Animation GIF -->
+                        <img src="images/cad_360_turntable.gif" alt="360 Turntable CAD Animation">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail 2: BEM Solver -->
+            <div class="detail-block" id="bem-detail">
+                <div class="detail-layout">
+                    <div class="detail-media">
+                        <img src="images/hover_efficiency_curve.png" alt="Propeller Hover Efficiency Curve">
+                    </div>
+                    <div class="detail-txt">
+                        <h3>Blade Element Momentum Solver</h3>
+                        <p>A first-principles BEM simulation mapping aerodynamic thrust and mechanical torque. Sectional 2D polars for the NACA 4412 airfoil profile were integrated to calculate induced flow velocities and local angles of attack across the 40-inch rotor blades.</p>
+                        <p>Hover tests confirm that selecting the 40" x 13" propeller improves flight efficiency by 19.1% (8.1 g/W vs 6.8 g/W) compared to the baseline 36" propeller, reducing overall continuous power draw by 264 W.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail 3: Avionics KiCad Schematic -->
+            <div class="detail-block" id="avionics-detail">
+                <div class="detail-layout">
+                    <div class="detail-txt">
+                        <h3>Avionics & KiCad Power Architecture</h3>
+                        <p>A centralized avionics layout featuring a nominal 12S (44.4V) high-energy-density semi-solid-state DC bus, regulated dual-voltage power rails (5V gimbal, 12V telemetry), and a Pixhawk orange flight controller.</p>
+                        <p>cables are thermally validated to prevent insulation breakdown under transient discharge: convective heat dissipation models sized 14 AWG wire for a safe maximum peak temperature of 189.7°C (with 10.3°C headroom below the 200°C limit).</p>
+                    </div>
+                    <div class="detail-media">
+                        <img src="images/kicad_schematic_diagram.png" alt="KiCad Avionics Schematic Diagram">
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <hr>
+
+        <!-- Lab Notes / Blog Section -->
+        <section id="lab-notes">
+            <div class="section-header">
+                <h2>Lab Notes & Regular Work Logs</h2>
+                <p>Updates and engineering posts detailing design improvements and technical achievements.</p>
+            </div>
+
+            <div class="blog-list">
+                <div class="blog-post">
+                    <div class="blog-meta">
+                        <span>📅 July 30, 2026</span>
+                        <span>🏷️ CAD Spacing & Assembly</span>
+                    </div>
+                    <h3>Sizing Convergence & Structural Spacing Integrity</h3>
+                    <p>Updated the central battery pack layout to scale dynamically based on the mass budget solver (converged battery pack mass = 12.129 kg, capacity = 6,307.2 Wh, volume = 10.838 L). Sizing this pack using a realistic 582 Wh/L pack-level density requires a 220 x 220 x 224 mm geometry. Moving the start radius of carbon arm tubes to 170 mm completely resolves mechanical overlap with the battery corners, providing a 22.22 mm physical clearance cushion.</p>
+                </div>
+                
+                <div class="blog-post">
+                    <div class="blog-meta">
+                        <span>📅 July 27, 2026</span>
+                        <span>🏷️ Structural Vibration</span>
+                    </div>
+                    <h3>Transcendental Modal Solver Validation</h3>
+                    <p>Successfully verified the modal natural frequencies of the carbon fiber structural arms. Standard lumped-mass models fail to accurately account for structural mass distributions along the 1.12-meter tube. Sized using a transcendental root-finding Brent's solver, the first natural bending frequency converges to 8.79 Hz. A Campbell Diagram confirms that the rotor's 1P mass imbalances (40.90 Hz) and 2P blade passages (81.80 Hz) sit safely clear of structural resonances.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-logo">⚡ QUAD_AUTONOMY.LAB</div>
+            <div class="footer-socials">
+                <a href="https://github.com/Bishu-crypto/quadcopter-autonomy">GitHub Codebase</a>
+                <a href="#hero">Back to Top</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

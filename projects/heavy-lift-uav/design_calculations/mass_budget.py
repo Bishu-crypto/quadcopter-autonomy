@@ -63,17 +63,14 @@ class MassBudget:
             breakdown[c.category] = breakdown.get(c.category, 0.0) + c.mass
         return breakdown
 
-def build_default_uav_mass_budget(payload_mass=10.0, fuel_mass=4.2, prop_diameter=36):
+def build_default_uav_mass_budget(payload_mass=10.0, fuel_mass=12.127, prop_diameter=36, energy_density_wh_kg=520.0):
     mb = MassBudget()
     
     # 1. Payload (centered at the bottom, say z = -0.15m)
     mb.add_component("Payload Package", "Payload", payload_mass, [0.0, 0.0, -0.15], "Camera / Cargo box")
     
-    # 2. Power System
-    mb.add_component("Hybrid Generator (Dry)", "Power System", 4.5, [0.0, 0.0, 0.05], "3.6 kW Gen")
-    mb.add_component("Fuel Tank (Dry)", "Power System", 0.5, [0.0, 0.0, -0.05], "5L Fuel Tank")
-    mb.add_component("Gasoline Fuel", "Power System", fuel_mass, [0.0, 0.0, -0.05], "Fuel load")
-    mb.add_component("Buffer Battery (12S LiPo)", "Power System", 1.5, [0.0, 0.0, 0.0], "Transient battery buffer")
+    # 2. Power System (Battery-Electric only)
+    mb.add_component(f"Main Propulsion Battery Pack ({energy_density_wh_kg:.0f} Wh/kg)", "Power System", fuel_mass, [0.0, 0.0, 0.0], "Main Propulsion Battery")
     
     # 3. Frame & Structural (6 arms configuration, length 0.8m)
     mb.add_component("Center Plates & Core Frame", "Frame", 2.2, [0.0, 0.0, 0.0], "Carbon fiber plates")
@@ -95,7 +92,7 @@ def build_default_uav_mass_budget(payload_mass=10.0, fuel_mass=4.2, prop_diamete
     
     # 4. Propulsion System (6 single motors, 6 ESCs, 6 props at the end of the arms)
     motor_mass = 1.05 # T-Motor U15 II KV100
-    esc_mass = 0.15 # 120A ESC
+    esc_mass = 0.08 # Bharath Components 12S ESC
     prop_mass = 0.20 if prop_diameter == 36 else 0.25 # prop weight (0.20kg for 36", 0.25kg for 40")
     rotor_group_mass = motor_mass + esc_mass + prop_mass # Single rotor group
     
@@ -108,16 +105,16 @@ def build_default_uav_mass_budget(payload_mass=10.0, fuel_mass=4.2, prop_diamete
     mb.add_component("Wiring Loom", "Propulsion", 0.5, [0.0, 0.0, 0.0], "Power and signal wires")
 
     # 5. Avionics & Comms
-    mb.add_component("Flight Controller & GPS", "Avionics", 0.15, [0.0, 0.0, 0.08], "Pixhawk 6X / Neo 3 GPS")
-    mb.add_component("RF Telemetry & Antennas", "Avionics", 0.25, [0.0, -0.2, 0.1], "915MHz + 2.4GHz Links")
+    mb.add_component("Flight Controller & GPS", "Avionics", 0.08, [0.0, 0.0, 0.08], "Darkmatter BRAHMA F7 / Elena NDNU GPS")
+    mb.add_component("RF Telemetry & Antennas", "Avionics", 0.15, [0.0, -0.2, 0.1], "ZeroDrag Nexus1 ELRS + 915MHz Link")
     mb.add_component("First Person View (FPV) Camera", "Avionics", 0.10, [0.0, 0.3, -0.05], "Camera + VTX")
     mb.add_component("Companion Computer", "Avionics", 0.30, [0.0, 0.0, 0.07], "Nvidia Jetson Orin Nano")
 
     return mb
 
-def run_tow_convergence(payload_mass=10.0, initial_fuel_guess=4.2, prop_diameter=40, max_iter=20, tol=0.005):
+def run_tow_convergence(payload_mass=10.0, initial_fuel_guess=15.0, prop_diameter=40, max_iter=20, tol=0.005, energy_density_wh_kg=520.0):
     """
-    Iterates TOW -> Hover Power -> Mission Fuel Burn -> Fuel Mass + 20% Reserve -> TOW
+    Iterates TOW -> Hover Power -> Mission Energy Consumed -> Battery Mass + 20% Reserve -> TOW
     until Total Takeoff Weight converges within tolerance.
     """
     from power_endurance import PowerEndurance
@@ -127,22 +124,22 @@ def run_tow_convergence(payload_mass=10.0, initial_fuel_guess=4.2, prop_diameter
     motor = Motor(kv=100, resistance=0.017, idle_current=2.0, weight_kg=1.05)
     pe = PowerEndurance(prop, motor)
     
-    current_fuel = initial_fuel_guess
+    current_battery = initial_fuel_guess
     prev_tow = 0.0
     iteration_history = []
     
     for iteration in range(1, max_iter + 1):
-        mb = build_default_uav_mass_budget(payload_mass=payload_mass, fuel_mass=current_fuel, prop_diameter=prop_diameter)
+        mb = build_default_uav_mass_budget(payload_mass=payload_mass, fuel_mass=current_battery, prop_diameter=prop_diameter, energy_density_wh_kg=energy_density_wh_kg)
         tow = mb.get_total_mass()
         
         # Calculate hover power
         hover_power = pe.calculate_total_power(tow, speed_mps=0.0)
         
         # Run operational mission simulation (30 km out + 20 min loiter + 30 km back)
-        res = pe.simulate_operational_mission(tow, fuel_mass_kg=current_fuel)
+        res = pe.simulate_operational_mission(tow, battery_mass_kg=current_battery, energy_density_wh_kg=energy_density_wh_kg)
         
-        fuel_consumed = res["total_fuel_consumed_kg"]
-        required_fuel_with_reserve = res["required_fuel_with_reserve_kg"]
+        energy_consumed_wh = res["total_energy_consumed_wh"]
+        required_battery_with_reserve = res["required_battery_mass_kg"]
         
         delta_tow = abs(tow - prev_tow)
         
@@ -150,9 +147,9 @@ def run_tow_convergence(payload_mass=10.0, initial_fuel_guess=4.2, prop_diameter
             "iteration": iteration,
             "tow_kg": tow,
             "hover_power_w": hover_power,
-            "fuel_consumed_kg": fuel_consumed,
-            "fuel_required_20_reserve_kg": required_fuel_with_reserve,
-            "fuel_carried_kg": current_fuel,
+            "energy_consumed_wh": energy_consumed_wh,
+            "battery_required_20_reserve_kg": required_battery_with_reserve,
+            "battery_carried_kg": current_battery,
             "delta_tow_kg": delta_tow
         })
         
@@ -161,27 +158,29 @@ def run_tow_convergence(payload_mass=10.0, initial_fuel_guess=4.2, prop_diameter
             break
             
         prev_tow = tow
-        # Update fuel carried to required fuel for next iteration
-        current_fuel = required_fuel_with_reserve
+        current_battery = required_battery_with_reserve
         
-    final_mb = build_default_uav_mass_budget(payload_mass=payload_mass, fuel_mass=current_fuel, prop_diameter=prop_diameter)
+    final_mb = build_default_uav_mass_budget(payload_mass=payload_mass, fuel_mass=current_battery, prop_diameter=prop_diameter, energy_density_wh_kg=energy_density_wh_kg)
     
     return {
         "final_mb": final_mb,
         "converged_tow_kg": final_mb.get_total_mass(),
-        "converged_fuel_kg": current_fuel,
+        "converged_fuel_kg": current_battery, # kept for legacy API compatibility
+        "converged_battery_kg": current_battery,
+        "hover_power_w": iteration_history[-1]["hover_power_w"] if iteration_history else 0.0,
+        "energy_consumed_wh": iteration_history[-1]["energy_consumed_wh"] if iteration_history else 0.0,
         "iteration_history": iteration_history
     }
 
 if __name__ == "__main__":
-    print("Running TOW Mass-Power-Fuel Convergence Loop...")
+    print("Running TOW Mass-Power-Battery Convergence Loop...")
     conv = run_tow_convergence(prop_diameter=40)
     
     print("\nConvergence History Table:")
-    print(f"{'Iter':<5} | {'TOW (kg)':<10} | {'Hover Power (W)':<16} | {'Fuel Burn (kg)':<15} | {'Req Fuel w/ Reserve (kg)':<25} | {'Delta TOW (kg)':<15}")
+    print(f"{'Iter':<5} | {'TOW (kg)':<10} | {'Hover Power (W)':<16} | {'Energy Cons (Wh)':<16} | {'Req Batt w/ Reserve (kg)':<25} | {'Delta TOW (kg)':<15}")
     print("-" * 95)
     for h in conv["iteration_history"]:
-        print(f"{h['iteration']:<5} | {h['tow_kg']:<10.3f} | {h['hover_power_w']:<16.1f} | {h['fuel_consumed_kg']:<15.3f} | {h['fuel_required_20_reserve_kg']:<25.3f} | {h['delta_tow_kg']:<15.3f}")
+        print(f"{h['iteration']:<5} | {h['tow_kg']:<10.3f} | {h['hover_power_w']:<16.1f} | {h['energy_consumed_wh']:<16.1f} | {h['battery_required_20_reserve_kg']:<25.3f} | {h['delta_tow_kg']:<15.3f}")
         
     mb = conv["final_mb"]
     total_mass = mb.get_total_mass()
@@ -189,7 +188,7 @@ if __name__ == "__main__":
     I = mb.calculate_inertia_tensor(cg)
     
     print(f"\nFinal Converged TOW: {total_mass:.3f} kg")
-    print(f"Final Converged Fuel Mass: {conv['converged_fuel_kg']:.3f} kg")
+    print(f"Final Converged Battery Mass: {conv['converged_battery_kg']:.3f} kg")
     print(f"Center of Gravity: [{cg[0]:.4f}, {cg[1]:.4f}, {cg[2]:.4f}] m")
     print("Inertia Tensor (kg-m^2):")
     print(f"  Ixx = {I[0,0]:.4f}, Iyy = {I[1,1]:.4f}, Izz = {I[2,2]:.4f}")

@@ -147,7 +147,35 @@ def run_structural_validation(tow_kg, num_arms=6):
         governing_res = res_sym
         
     # Run vibration analysis
-    vib_res = arm.get_natural_frequencies(tip_mass_kg=1.05 + 0.38) # motor + prop
+    vib_res = arm.get_natural_frequencies(tip_mass_kg=1.05 + 0.08 + 0.25) # motor + ESC + prop
+    
+    # Calculate resonance margins
+    hover_rpm = 2200.0 * np.sqrt((tow_kg * 9.81) / 294.0)
+    f_1x = hover_rpm / 60.0
+    f_2x = 2.0 * f_1x
+    
+    margin_f1_1x = abs(vib_res["f1_exact_hz"] - f_1x) / f_1x * 100.0
+    margin_f1_2x = abs(vib_res["f1_exact_hz"] - f_2x) / f_2x * 100.0
+    margin_f2_1x = abs(vib_res["f2_exact_hz"] - f_1x) / f_1x * 100.0
+    margin_f2_2x = abs(vib_res["f2_exact_hz"] - f_2x) / f_2x * 100.0
+    
+    vib_res["hover_rpm"] = hover_rpm
+    vib_res["f_1x"] = f_1x
+    vib_res["f_2x"] = f_2x
+    vib_res["margin_f1_1x"] = margin_f1_1x
+    vib_res["margin_f1_2x"] = margin_f1_2x
+    vib_res["margin_f2_1x"] = margin_f2_1x
+    vib_res["margin_f2_2x"] = margin_f2_2x
+    
+    # Transient crossing parameters
+    t_spool = 3.0
+    spool_rate_rpm_s = hover_rpm / t_spool
+    spool_rate_hz_s = f_1x / t_spool
+    zeta = 0.02
+    df_mode1 = 2.0 * zeta * vib_res["f1_exact_hz"]
+    t_dwell_1p_ms = (df_mode1 / spool_rate_hz_s) * 1000.0
+    t_dwell_2p_ms = (df_mode1 / (2.0 * spool_rate_hz_s)) * 1000.0
+    tau_mode1_ms = (1.0 / (2.0 * np.pi * zeta * vib_res["f1_exact_hz"])) * 1000.0
     
     print(f"Structural Load Case Analysis (TOW = {tow_kg:.2f} kg):")
     print(f"  Case 1 [Symmetric 2.5G]: Force/Arm = {res_sym['force_per_arm_n']:.1f} N, Stress = {res_sym['max_stress_mpa']:.1f} MPa, SF = {res_sym['safety_factor']:.2f}")
@@ -157,6 +185,20 @@ def run_structural_validation(tow_kg, num_arms=6):
     print(f"Vibration & Aero-Resonance Analysis:")
     print(f"  1st Bending Natural Frequency (Exact): {vib_res['f1_exact_hz']:.2f} Hz (Rayleigh: {vib_res['f1_rayleigh_hz']:.2f} Hz)")
     print(f"  2nd Bending Natural Frequency (Exact): {vib_res['f2_exact_hz']:.2f} Hz")
+    print(f"  Hover RPM: {hover_rpm:.1f}")
+    print(f"  1x excitation: {f_1x:.2f} Hz | 2x excitation: {f_2x:.2f} Hz")
+    print(f"  1st bending mode ({vib_res['f1_exact_hz']:.2f} Hz): {margin_f1_1x:.1f}% margin vs 1x, {margin_f1_2x:.1f}% margin vs 2x")
+    print(f"  2nd bending mode ({vib_res['f2_exact_hz']:.2f} Hz): {margin_f2_1x:.1f}% margin vs 1x, {margin_f2_2x:.1f}% margin vs 2x")
+    
+    rpm_1p = vib_res["f1_exact_hz"] * 60.0
+    rpm_2p = vib_res["f1_exact_hz"] * 30.0
+    
+    print(f"  Transient Crossing Analysis (0 to Hover in {t_spool:.1f}s):")
+    print(f"    Rotor acceleration: {spool_rate_rpm_s:.1f} RPM/s ({spool_rate_hz_s:.2f} Hz/s)")
+    print(f"    Mode 1 Bandwidth (zeta={zeta:.2f}): {df_mode1:.3f} Hz")
+    print(f"    1P Dwell Time ({rpm_1p:.1f} RPM): {t_dwell_1p_ms:.1f} ms")
+    print(f"    2P Dwell Time ({rpm_2p:.1f} RPM): {t_dwell_2p_ms:.1f} ms")
+    print(f"    Resonance Response Time Constant (tau): {tau_mode1_ms:.1f} ms")
     
     return {
         "symmetric_2_5g": res_sym,
@@ -167,4 +209,4 @@ def run_structural_validation(tow_kg, num_arms=6):
     }
 
 if __name__ == "__main__":
-    run_structural_validation(34.575)
+    run_structural_validation(37.291)
