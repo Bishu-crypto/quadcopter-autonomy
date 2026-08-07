@@ -39,6 +39,7 @@ See /docs/design_notes.md - handwritten derivations and reasoning for every majo
 
 ## 🤖 Sub-Project Showcase: Voyager NL-Drone-Agent (MuJoCo)
 
+![3D MuJoCo Flight Animation](projects/nl-drone-agent/flight_demo.gif)
 ![Flight Telemetry Dynamics](projects/nl-drone-agent/flight_demo_plot.png)
 
 ### Summary & Architecture

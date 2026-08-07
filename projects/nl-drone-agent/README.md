@@ -1,5 +1,8 @@
 # Voyager — NL-Drone-Agent (MuJoCo)
 
+![3D MuJoCo Flight Animation](flight_demo.gif)
+![Flight Telemetry Dynamics](flight_demo_plot.png)
+
 Text-command-controlled flight of the actual heavy-lift hexacopter geometry
 (from `projects/heavy-lift-uav/`), simulated in MuJoCo with real converged
 mass/inertia values, full 6-DOF 3D position control, and a swappable LLM tool-calling agent.
