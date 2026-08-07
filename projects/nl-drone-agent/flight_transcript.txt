@@ -1,0 +1,18 @@
+> takeoff to 3m
+[agent] Taking off to 3.0 m. Current status: pos=(0.00, -0.00, 3.00) m.
+> hold
+[agent] Holding position at (0.00, -0.00, 3.00) m.
+> status
+[agent] Status: pos=(0.00, -0.00, 3.00) m | vel=(0.00, -0.00, -0.00) m/s | attitude=(roll -0.0°, pitch -0.0°, yaw -0.0°)
+> goto 4, 3, 5
+[agent] Waypoint reached. Target=(4.0, 3.0, 5.0) m | Current=(3.98, 2.99, 5.00) m.
+> hold
+[agent] Holding position at (3.98, 2.99, 5.00) m.
+> go up 2m higher
+[agent] Waypoint reached. Target=(4.0, 3.0, 7.0) m | Current=(3.98, 2.99, 7.00) m.
+> takeoff to 100m
+[agent] REJECTED — Requested takeoff altitude 100.00m is outside safe bounds [0.15m, 50.00m].
+> land
+[agent] Landing sequence complete. Final altitude 0.15 m.
+> status
+[agent] Status: pos=(3.98, 2.99, 0.15) m | vel=(-0.00, -0.00, -0.00) m/s | attitude=(roll 0.0°, pitch -0.0°, yaw -0.6°)

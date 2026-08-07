@@ -37,6 +37,20 @@ See /docs/design_notes.md - handwritten derivations and reasoning for every majo
 
 ---
 
+## 🤖 Sub-Project Showcase: Voyager NL-Drone-Agent (MuJoCo)
+
+![Flight Telemetry Dynamics](projects/nl-drone-agent/flight_demo_plot.png)
+
+### Summary & Architecture
+The **Voyager NL-Drone-Agent** (`projects/nl-drone-agent/`) extends the heavy-lift hexacopter with an autonomous **natural-language dialogue agent** operating inside a high-fidelity **MuJoCo physics simulation**. The system features strict separation between AI reasoning and deterministic physical safety:
+
+1. **Swappable LLM Tool-Calling Layer (`llm_client.py`)**: Constrains user text prompts into structured function calls (`takeoff`, `goto`, `land`, `hold`, `set_velocity`, `get_status`) with context maintenance across turns ("go up 2m higher").
+2. **Deterministic Safety Validation Layer (`safety.py`)**: Hard physical bounds firewall ($Z_{max}=50\text{m}, Z_{min}=0.15\text{m}, V_{max}=8\text{m/s}, R_{geofence}=100\text{m}$). Out-of-bounds commands are rejected with explicit feedback.
+3. **6-DOF Hexacopter Controller (`controller.py`)**: Full 3D position ($XY + Z$) and attitude (pitch/roll tilt) control via 6-rotor differential thrust allocation.
+4. **Interactive CLI & Video Output (`dialogue_node.py` / `render_video.py`)**: Turn-by-turn dialogue node, rendered 3D flight video (`flight_demo.mp4`), and telemetry plots (`flight_demo_plot.png`).
+
+---
+
 ## 🧭 Repository Folder Structure
 
 ```
@@ -46,21 +60,23 @@ quadcopter-autonomy/ (Voyager Root)
 ├── docs/                              # General & theoretical documentation
 │   ├── Vision.md                      # Core philosophy and vision of Voyager
 │   ├── Architecture.md                # System module boundaries and architecture layout
-│   ├── design_notes.md                # [New] Handwritten derivations and reasoning for major design decisions
+│   ├── design_notes.md                # Handwritten derivations and reasoning for major design decisions
 │   ├── ENGINEERING_PRINCIPLES.md      # Development philosophy and engineering principles
 │   └── Theory/                        # Mathematical & physical foundations of flight control
-│       ├── FlightDynamics.md          # 6-DOF kinematics and dynamics
-│       ├── Control.md                 # PID control and rotor mixing mathematics
-│       └── Aerodynamics.md            # Rotor aerodynamics and BEM theory
 ├── projects/
-│   └── heavy-lift-uav/                # Showcase: Heavy-Lift Battery-Electric Hexacopter Suite
-│       ├── DESIGN_LOCK.md             # Locked system parameters & target baseline (source of truth)
-│       ├── design_calculations/       # First-principles calculations (mass, power, structural, propulsion)
-│       ├── simulation/                # Aerodynamic BEM & 3D CAD visualization generation scripts
-│       ├── freecad/                   # Parametric 3D CAD python macro & exported STEP assembly
-│       ├── kicad/                     # 48V electrical schematic & generated PDF schematic
-│       ├── reports/                   # Compiled LaTeX 9-page report, figures, and turntable GIF
-│       └── xflr5/                     # Rotor geometry & NACA 4412 aerodynamic polar files
+│   ├── heavy-lift-uav/                # Showcase: Heavy-Lift Battery-Electric Hexacopter Suite
+│   └── nl-drone-agent/                # Showcase: Natural Language Drone Agent in MuJoCo
+│       ├── DESIGN_LOCK.md             # Locked tool schemas, safety bounds & 6-DOF equations
+│       ├── generate_mjcf.py           # MJCF XML model generator (37.291kg TOW baseline)
+│       ├── safety.py                  # Deterministic safety bounds checker
+│       ├── llm_client.py              # Swappable LLM tool-calling layer
+│       ├── controller.py              # Cascaded 6-DOF position, velocity & tilt controller
+│       ├── dialogue_control.py        # Validated execution pipeline demo
+│       ├── dialogue_node.py           # Interactive CLI & batch dialogue node
+│       ├── run_demo_mission.py        # Animated presentation mission script
+│       ├── render_video.py            # Offscreen video & plot generator
+│       ├── flight_demo.mp4            # Rendered 3D flight video
+│       └── flight_demo_plot.png       # Flight telemetry visualization plot
 ├── modules/
 │   └── voyager-sim/                   # High-performance C++ 6-DOF physics and simulator engine
 ├── prototype/
