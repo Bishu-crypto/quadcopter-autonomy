@@ -1,10 +1,10 @@
 # Design Lock — Voyager NL-Drone-Agent Sub-Project
 
-This document captures the frozen parameters, tool-calling schemas, safety boundaries, LLM provider architecture, and 6-DOF physical control equations for the natural-language drone agent in MuJoCo.
+This document captures the frozen parameters, tool-calling schemas, safety boundaries, LLM provider architecture, 6-DOF physical control equations, and forward multi-agent research extension specifications for the natural-language drone agent in MuJoCo.
 
 ---
 
-## 1. Fixed Tool-Calling Schemas
+## 1. Fixed Tool-Calling Schemas (Single-Agent Baseline)
 
 The LLM tool-calling layer (`llm_client.py`) is constrained strictly to the following 6 tool functions. Direct code generation or raw MuJoCo `ctrl` manipulation by the LLM is prohibited.
 
@@ -66,3 +66,32 @@ $$M_{yaw} = K_{p,yaw} (\psi_{target} - \psi) - K_{d,yaw} \omega_z$$
 ### Differential Thrust Allocation
 For rotor $i$ at position $(x_i, y_i)$:
 $$T_i = \text{clip}\left(T_{hover} + \Delta T_{z,i} - M_{pitch}\frac{x_i}{L} + M_{roll}\frac{y_i}{L} + s_i M_{yaw}, 0, T_{max\_rotor}\right)$$
+
+---
+
+## 5. Priority Path: Local Air-Gapped Offline LLM Engine
+
+To satisfy defence research requirements (e.g. Indian Army field deployments and CoDRAS robotics environments), the system prioritizes **local, zero-cloud execution**:
+- The offline rule/regex engine in `llm_client.py` serves as the baseline fallback requiring no external internet connection or API keys.
+- **Next-Step Hardening**: Integration of lightweight local Small Language Models (SLMs) such as quantized Llama-3-8B-Instruct or Phi-3-Mini running via ONNX Runtime / `llama.cpp` directly onboard the ground station or drone edge compute node.
+
+---
+
+## 6. Multi-Drone / Multi-Agent Research Extension (Forward Scoping)
+
+Designed for multi-robot swarm research (CoDRAS alignment), extending single-drone tool schemas to multi-agent coordinate systems:
+
+### Proposed Multi-Agent Tool Schema Extension
+
+| Tool Name | Extended Parameters | Description / Multi-Agent Behavior |
+|---|---|---|
+| `swarm_takeoff` | `agent_ids: list[str] \| "all"`, `altitude_m: float` | Synchronized or staggered takeoff for designated drone agents. |
+| `swarm_goto` | `agent_ids: list[str] \| "all"`, `waypoints: list[dict]` | Assign specific spatial targets $(x_i, y_i, z_i)$ per agent ID. |
+| `set_formation` | `leader_id: str`, `shape: "wedge" \| "grid" \| "column"`, `spacing_m: float` | Maintain rigid or adaptive formation geometry centered on a leader node. |
+| `assign_task` | `agent_id: str`, `task_type: "land_target" \| "geo_track" \| "patrol"`, `target_coords: dict` | Autonomous task distribution across heterogeneous swarm members. |
+| `swarm_status` | `agent_ids: list[str] \| "all"` | Returns consolidated multi-vehicle state vector $\mathbf{X} = [\mathbf{x}_1, \dots, \mathbf{x}_N]^T$. |
+
+### Multi-Agent Safety Extensions (`safety.py`)
+- **Inter-Agent Collision Avoidance**: Hard pairwise minimum separation $d_{min} = 2.0\text{ m}$.
+  $$\|\mathbf{p}_i - \mathbf{p}_j\| \ge d_{min} \quad \forall i \neq j$$
+- **Swarm Geofence Enforcement**: Spatial bounding box bounding the entire formation geometry within $R_{geofence}$.
