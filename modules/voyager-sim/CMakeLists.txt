@@ -25,3 +25,16 @@ add_executable(test_rigidbody
     tests/test_rigidbody.cpp
 )
 target_link_libraries(test_rigidbody PRIVATE voyager_sim)
+
+# Python bindings target
+find_package(pybind11 CONFIG)
+if(NOT pybind11_FOUND)
+    find_package(pybind11 REQUIRED)
+endif()
+
+pybind11_add_module(voyager_sim_py
+    src/bindings.cpp
+    src/RigidBody.cpp
+    src/SensorModels.cpp
+)
+target_include_directories(voyager_sim_py PRIVATE include)

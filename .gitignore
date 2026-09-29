@@ -22,6 +22,9 @@ CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 Makefile
+*.so
+*.dylib
+*.dll
 
 # PX4 build output
 PX4-Autopilot/build/
